@@ -1,0 +1,30 @@
+# Environment
+node_modules/
+.env
+.env.local
+
+# Build outputs
+dist/
+.next/
+out/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database
+*.db
+*.db-journal
+
+# Docker
+docker-compose.override.yml
