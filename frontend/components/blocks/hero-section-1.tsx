@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern'
 import { ModeToggle } from '@/components/mode-toggle'
+import { CodingAnimation } from '@/components/blocks/coding-animation'
 import { cn } from '@/lib/utils'
 
 const transitionVariants = {
@@ -136,8 +137,8 @@ export function HeroSection() {
                                     className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                                 />
                                 <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-muted/50 relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-4 shadow-lg shadow-zinc-950/15 ring-1">
-                                    <div className="bg-gradient-to-br from-primary/10 via-background to-secondary/10 aspect-[15/8] relative rounded-2xl flex items-center justify-center">
-                                        <p className="text-muted-foreground text-lg">Your projects will appear here</p>
+                                    <div className="bg-gradient-to-br from-primary/10 via-background to-secondary/10 relative rounded-2xl p-6">
+                                        <CodingAnimation />
                                     </div>
                                 </div>
                             </div>
