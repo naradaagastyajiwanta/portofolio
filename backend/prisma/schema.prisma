@@ -27,3 +27,24 @@ model Project {
   @@index([showOnPortfolio, featured])
   @@map("projects")
 }
+
+model Experience {
+  id                String   @id @default(uuid())
+  title             String
+  company           String
+  location          String?
+  employmentType    String?  @map("employment_type") // 'Full-time', 'Part-time', 'Contract', etc.
+  startDate         DateTime @map("start_date")
+  endDate           DateTime? @map("end_date")
+  current           Boolean  @default(false)
+  description       String?
+  responsibilities  String[] // Array of responsibility items
+  skills            String[] // Skills used in this role
+  order             Int      @default(0) // For custom sorting
+  showOnAbout       Boolean  @default(true) @map("show_on_about")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([showOnAbout, order])
+  @@map("experiences")
+}
