@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import { connectDatabase, disconnectDatabase } from './lib/db.js';
 import { projectRoutes } from './routes/projects.js';
 import { syncRoutes } from './routes/sync.js';
+import experienceRoutes from './routes/experiences.js';
 
 config();
 
@@ -20,6 +21,7 @@ await connectDatabase();
 
 await app.register(projectRoutes);
 await app.register(syncRoutes);
+await app.register(experienceRoutes);
 
 app.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };

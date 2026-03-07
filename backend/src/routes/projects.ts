@@ -32,4 +32,39 @@ export async function projectRoutes(app: FastifyInstance) {
       return reply.status(500).send({ error: 'Failed to fetch projects' });
     }
   });
+
+  // Get single project by ID
+  app.get('/api/projects/:id', async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string };
+      
+      const project = await prisma.project.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          url: true,
+          stars: true,
+          techStack: true,
+          featured: true,
+          lastCommitAt: true,
+          provider: true,
+          repoId: true,
+          showOnPortfolio: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      });
+
+      if (!project) {
+        return reply.status(404).send({ error: 'Project not found' });
+      }
+
+      return reply.send({ project });
+    } catch (error) {
+      console.error('Error fetching project:', error);
+      return reply.status(500).send({ error: 'Failed to fetch project' });
+    }
+  });
 }
