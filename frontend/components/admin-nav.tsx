@@ -19,6 +19,7 @@ import {
   Menu,
   Sparkles,
   Settings,
+  Key,
 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 
@@ -66,6 +67,7 @@ export function AdminNav() {
     { label: "Skills", href: "/admin/skills", icon: Code },
     { label: "Blog", href: "/admin/blog", icon: FileText },
     { label: "Messages", href: "/admin/messages", icon: Inbox, badge: unreadMessages },
+    { label: "API Tokens", href: "/admin/api-tokens", icon: Key },
     { label: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

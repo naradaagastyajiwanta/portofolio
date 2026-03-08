@@ -83,7 +83,7 @@ export default async function BlogPage({
       <main className="min-h-screen bg-background">
         <Header />
         {/* Hero */}
-      <section className="relative py-24 md:py-32 bg-gradient-to-b from-background via-background to-muted/30 overflow-hidden">
+      <section className="relative py-24 md:py-32 overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse animation-delay-1000" />

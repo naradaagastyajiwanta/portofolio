@@ -102,8 +102,8 @@ export default async function BlogPostPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-      {/* Hero gradient background */}
-      <section className="relative py-24 md:py-32 bg-gradient-to-b from-background via-background to-muted/30 overflow-hidden">
+      {/* Hero section */}
+      <section className="relative py-24 md:py-32 overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-10 right-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-10 left-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl animate-pulse animation-delay-1000" />
@@ -216,7 +216,7 @@ export default async function BlogPostPage({
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-muted/30">
+      <footer className="border-t border-border/50">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">

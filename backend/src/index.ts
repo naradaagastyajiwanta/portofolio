@@ -14,6 +14,8 @@ import contactRoutes from './routes/contact.js';
 import skillsRoutes from './routes/skills.js';
 import blogRoutes from './routes/blog.js';
 import settingsRoutes from './routes/settings.js';
+import webhookRoutes from './routes/webhook.js';
+import apiTokenRoutes from './routes/api-tokens.js';
 import { registerAdminAuth } from './middleware/auth.js';
 import { cleanExpiredSessions } from './services/auth.js';
 import crypto from 'crypto';
@@ -61,6 +63,8 @@ await app.register(experienceRoutes);
 await app.register(linkedinRoutes);
 await app.register(blogRoutes);
 await app.register(settingsRoutes);
+await app.register(webhookRoutes);
+await app.register(apiTokenRoutes);
 
 app.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };
