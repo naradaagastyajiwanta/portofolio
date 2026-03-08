@@ -41,7 +41,7 @@ function useTypewriter(lines: TypeLine[], charSpeed = 28, lineGap = 380, active 
 // ─── Scene 1: Webpack Build Terminal ─────────────────────────────────────────
 const buildLines: TypeLine[] = [
   { text: 'npm run build', type: 'cmd' },
-  { text: '> portfolio@0.1.0 build', type: 'out' },
+  { text: '> naj@0.1.0 build', type: 'out' },
   { text: '> next build', type: 'out' },
   { text: '  ▲ Next.js 15.5', type: 'out' },
   { text: '   Creating an optimized production build...', type: 'out' },
@@ -273,21 +273,21 @@ const floatCards = [
     glow: '0 0 30px rgba(59,130,246,0.2)', border: 'border-blue-500/30',
     bg: 'from-blue-50/90 to-white/95 dark:from-blue-950/60 dark:to-zinc-900/80',
     code: `type ApiResponse<T> = {\n  data: T\n  status: number\n  ok: boolean\n}`,
-    x: 2, y: 4, depth: 1.0, floatY: [-10, 6, -10], floatDur: 4.2,
+    x: 5, y: 8, depth: 1.0, floatY: [-10, 6, -10], floatDur: 4.2,
   },
   {
     lang: 'Prisma', badge: 'bg-teal-500/20 text-teal-600 dark:text-teal-300 border-teal-500/40',
     glow: '0 0 30px rgba(20,184,166,0.2)', border: 'border-teal-500/30',
     bg: 'from-teal-50/90 to-white/95 dark:from-teal-950/60 dark:to-zinc-900/80',
     code: `model Project {\n  id    String @id\n  name  String\n  stars Int\n  @@map("projects")\n}`,
-    x: 53, y: 2, depth: 0.7, floatY: [8, -12, 8], floatDur: 5.0,
+    x: 50, y: 5, depth: 0.7, floatY: [8, -12, 8], floatDur: 5.0,
   },
   {
     lang: 'Shell', badge: 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border-emerald-500/40',
     glow: '0 0 30px rgba(16,185,129,0.2)', border: 'border-emerald-500/30',
     bg: 'from-emerald-50/90 to-white/95 dark:from-emerald-950/60 dark:to-zinc-900/80',
     code: `docker compose up -d\ndocker exec app \\\n  npx prisma migrate deploy\ncurl localhost:3001/health`,
-    x: 26, y: 52, depth: 0.85, floatY: [-6, 10, -6], floatDur: 3.8,
+    x: 28, y: 55, depth: 0.85, floatY: [-6, 10, -6], floatDur: 3.8,
   },
 ]
 
@@ -339,13 +339,13 @@ function FloatingCardsScene({ active }: { active: boolean }) {
 
 // ─── Scene 4: Animated SVG Git Graph ─────────────────────────────────────────
 const GIT_COMMITS = [
-  { id: 'a3f7', msg: 'initial commit', branch: 0, sha: 'a3f7b2c', x: 40, y: 60 },
-  { id: 'b1e9', msg: 'add layout & nav', branch: 0, sha: 'b1e9d4f', x: 120, y: 60 },
-  { id: 'c5d2', msg: 'feat: api routes', branch: 1, sha: 'c5d2a1e', x: 160, y: 110 },
-  { id: 'd8f3', msg: 'fix: cors headers', branch: 1, sha: 'd8f3e6c', x: 240, y: 110 },
-  { id: 'e2a1', msg: 'feat: projects page', branch: 0, sha: 'e2a1b9d', x: 200, y: 60 },
-  { id: 'f9c4', msg: 'merge feature/api', branch: 0, sha: 'f9c4d7a', x: 300, y: 60 },
-  { id: 'g4b8', msg: 'deploy v1.0 🚀', branch: 0, sha: 'g4b8c2e', x: 370, y: 60 },
+  { id: 'a3f7', msg: 'initial commit', branch: 0, sha: 'a3f7b2c', x: 50, y: 50 },
+  { id: 'b1e9', msg: 'add layout & nav', branch: 0, sha: 'b1e9d4f', x: 110, y: 50 },
+  { id: 'c5d2', msg: 'feat: api routes', branch: 1, sha: 'c5d2a1e', x: 150, y: 95 },
+  { id: 'd8f3', msg: 'fix: cors headers', branch: 1, sha: 'd8f3e6c', x: 210, y: 95 },
+  { id: 'e2a1', msg: 'feat: projects page', branch: 0, sha: 'e2a1b9d', x: 180, y: 50 },
+  { id: 'f9c4', msg: 'merge feature/api', branch: 0, sha: 'f9c4d7a', x: 260, y: 50 },
+  { id: 'g4b8', msg: 'deploy v1.0 🚀', branch: 0, sha: 'g4b8c2e', x: 320, y: 50 },
 ]
 const BRANCH_COLORS = ['#22c55e', '#a855f7']
 const BRANCH_NAMES = ['main', 'feature/api']
@@ -387,7 +387,7 @@ function GitTimelineScene({ active }: { active: boolean }) {
         </div>
       </div>
       <div className="relative px-3 py-3">
-        <svg width="100%" height="170" viewBox="0 70 420 110" className="overflow-visible">
+        <svg width="100%" height="160" viewBox="0 0 380 150" className="overflow-visible" preserveAspectRatio="xMidYMid meet">
           {visible >= 2 && <GitLine x1={GIT_COMMITS[1].x} y1={GIT_COMMITS[1].y} x2={GIT_COMMITS[2].x} y2={GIT_COMMITS[2].y} color={BRANCH_COLORS[1]} delay={0} />}
           {visible >= 3 && <GitLine x1={GIT_COMMITS[2].x} y1={GIT_COMMITS[2].y} x2={GIT_COMMITS[3].x} y2={GIT_COMMITS[3].y} color={BRANCH_COLORS[1]} delay={0} />}
           {visible >= 6 && <GitLine x1={GIT_COMMITS[3].x} y1={GIT_COMMITS[3].y} x2={GIT_COMMITS[5].x} y2={GIT_COMMITS[5].y} color={BRANCH_COLORS[1]} delay={0} />}

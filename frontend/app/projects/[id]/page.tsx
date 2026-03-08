@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Star, GitFork, Calendar, Code, Package } from "lucide-react";
@@ -6,6 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const project = await getProject(id);
+  if (!project) return { title: "Project Not Found" };
+  return {
+    title: project.name,
+    description: project.description || `${project.name} — an open-source project by NAJ.`,
+    openGraph: {
+      title: `${project.name} | NAJ`,
+      description: project.description || `${project.name} — an open-source project by NAJ.`,
+    },
+  };
+}
 
 interface Project {
   id: string;

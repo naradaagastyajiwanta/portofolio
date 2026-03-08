@@ -28,6 +28,36 @@ model Project {
   @@map("projects")
 }
 
+model AdminUser {
+  id                String   @id @default(uuid())
+  username          String   @unique
+  passwordHash      String   @map("password_hash")
+  displayName       String?  @map("display_name")
+  lastLoginAt       DateTime? @map("last_login_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  sessions          Session[]
+  blogPosts         BlogPost[]
+
+  @@map("admin_users")
+}
+
+model Session {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  refreshToken      String   @unique @map("refresh_token")
+  expiresAt         DateTime @map("expires_at")
+  userAgent         String?  @map("user_agent")
+  ipAddress         String?  @map("ip_address")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  user              AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
 model Experience {
   id                String   @id @default(uuid())
   title             String
@@ -47,4 +77,82 @@ model Experience {
 
   @@index([showOnAbout, order])
   @@map("experiences")
+}
+
+model ContactMessage {
+  id                String   @id @default(uuid())
+  name              String
+  email             String
+  subject           String?
+  message           String
+  status            String   @default("unread") // 'unread' | 'read' | 'replied' | 'archived'
+  ipAddress         String?  @map("ip_address")
+  userAgent         String?  @map("user_agent")
+  repliedAt         DateTime? @map("replied_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+model Skill {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  level             Int      @default(80) // 0-100
+  category          String   // 'Language' | 'Frontend' | 'Backend' | 'Database' | 'DevOps' | 'Tools'
+  order             Int      @default(0)
+  visible           Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([visible, order])
+  @@map("skills")
+}
+
+model BlogPost {
+  id                String      @id @default(uuid())
+  title             String
+  slug              String      @unique
+  excerpt           String?
+  content           String      // Markdown content
+  coverImage        String?     @map("cover_image")
+  status            String      @default("draft") // 'draft' | 'published' | 'archived'
+  publishedAt       DateTime?   @map("published_at")
+  readingTime       Int?        @map("reading_time") // estimated minutes
+  views             Int         @default(0)
+  authorId          String      @map("author_id")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  author            AdminUser   @relation(fields: [authorId], references: [id])
+  tags              BlogPostTag[]
+
+  @@index([status, publishedAt])
+  @@index([slug])
+  @@map("blog_posts")
+}
+
+model BlogTag {
+  id                String      @id @default(uuid())
+  name              String      @unique
+  slug              String      @unique
+  color             String?     // hex color for UI
+  createdAt         DateTime    @default(now()) @map("created_at")
+
+  posts             BlogPostTag[]
+
+  @@map("blog_tags")
+}
+
+model BlogPostTag {
+  postId            String      @map("post_id")
+  tagId             String      @map("tag_id")
+
+  post              BlogPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag               BlogTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@map("blog_post_tags")
 }

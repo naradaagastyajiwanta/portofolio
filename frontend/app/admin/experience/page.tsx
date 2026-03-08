@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+import { useAuth } from "@/lib/auth";
 import {
-  ArrowLeft,
   Plus,
   Pencil,
   Trash2,
@@ -17,7 +17,10 @@ import {
   Calendar,
   MapPin,
   Briefcase,
-  Loader2
+  Loader2,
+  Upload,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 
 interface Experience {
@@ -58,7 +61,25 @@ export default function AdminExperiencePage() {
   const [responsibilityInput, setResponsibilityInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
 
+  // LinkedIn sync state
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
+
+  // LinkedIn import state
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{
+    success: boolean;
+    message: string;
+    skipped?: string[];
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+  const { authFetch, logout, user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     fetchExperiences();
@@ -66,7 +87,11 @@ export default function AdminExperiencePage() {
 
   const fetchExperiences = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/experiences`);
+      const response = await authFetch(`${API_URL}/api/admin/experiences`);
+      if (response.status === 401) {
+        router.replace("/admin/login");
+        return;
+      }
       const data = await response.json();
       setExperiences(data);
     } catch (error) {
@@ -106,7 +131,7 @@ export default function AdminExperiencePage() {
   const handleSave = async () => {
     try {
       if (isCreating) {
-        const response = await fetch(`${API_URL}/api/admin/experiences`, {
+        const response = await authFetch(`${API_URL}/api/admin/experiences`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData)
@@ -116,7 +141,7 @@ export default function AdminExperiencePage() {
           setIsCreating(false);
         }
       } else if (editingId) {
-        const response = await fetch(`${API_URL}/api/admin/experiences/${editingId}`, {
+        const response = await authFetch(`${API_URL}/api/admin/experiences/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData)
@@ -135,7 +160,7 @@ export default function AdminExperiencePage() {
     if (!confirm("Are you sure you want to delete this experience?")) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/admin/experiences/${id}`, {
+      const response = await authFetch(`${API_URL}/api/admin/experiences/${id}`, {
         method: "DELETE"
       });
       if (response.ok) {
@@ -150,6 +175,50 @@ export default function AdminExperiencePage() {
     setIsCreating(false);
     setEditingId(null);
     setFormData({});
+  };
+
+  const handleLinkedInSync = async () => {
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const response = await authFetch(`${API_URL}/api/admin/linkedin/sync`, { method: "POST" });
+      const data = await response.json();
+      setSyncResult({ success: data.success, message: data.message || data.error });
+      if (data.success) await fetchExperiences();
+    } catch {
+      setSyncResult({ success: false, message: "Network error — pastikan backend berjalan." });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleLinkedInImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    setImportResult(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await authFetch(`${API_URL}/api/admin/linkedin/import`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      setImportResult({ success: response.ok, message: data.message || data.error, skipped: data.skipped });
+      if (response.ok) {
+        await fetchExperiences();
+      }
+    } catch {
+      setImportResult({ success: false, message: "Network error — pastikan backend berjalan." });
+    } finally {
+      setImporting(false);
+      // Reset input so file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const addResponsibility = () => {
@@ -202,22 +271,12 @@ export default function AdminExperiencePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Home
-              </Link>
-              <div className="h-6 w-px bg-border" />
-              <h1 className="text-xl font-semibold">Experience Management</h1>
-            </div>
+    <div>
+      {/* Page Header */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-xl font-semibold">Experience Management</h1>
             {!isCreating && !editingId && (
               <Button onClick={handleCreate} className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -225,12 +284,8 @@ export default function AdminExperiencePage() {
               </Button>
             )}
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="space-y-6">
           {/* Create/Edit Form */}
           {(isCreating || editingId) && (
             <motion.div
@@ -410,6 +465,66 @@ export default function AdminExperiencePage() {
             </motion.div>
           )}
 
+          {/* LinkedIn Sync */}
+          <div className="bg-card border rounded-lg p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="h-1 w-10 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full" />
+              <h2 className="text-base font-semibold">Sync dari LinkedIn</h2>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Otomatis ambil experience dari profil LinkedIn kamu. Butuh cookie{" "}
+              <code className="bg-muted px-1 rounded text-xs">li_at</code> di{" "}
+              <code className="bg-muted px-1 rounded text-xs">backend/.env</code>.
+            </p>
+
+            {/* Cara dapat li_at */}
+            <details className="text-xs text-muted-foreground bg-muted/50 rounded-md p-3">
+              <summary className="cursor-pointer font-medium text-foreground">
+                Cara dapat cookie li_at
+              </summary>
+              <ol className="mt-2 space-y-1 list-decimal list-inside">
+                <li>Buka <strong>linkedin.com</strong> di browser, pastikan sudah login</li>
+                <li>Tekan <strong>F12</strong> → tab <strong>Application</strong></li>
+                <li>Kiri: <strong>Cookies → https://www.linkedin.com</strong></li>
+                <li>Cari baris <strong>li_at</strong>, double-click kolom Value → copy</li>
+                <li>Paste ke <code>backend/.env</code> → <code>LINKEDIN_LI_AT=paste_disini</code></li>
+                <li>Restart backend, lalu klik Sync</li>
+              </ol>
+            </details>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button
+                onClick={handleLinkedInSync}
+                disabled={syncing}
+                className="gap-2"
+              >
+                {syncing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+                {syncing ? "Syncing..." : "Sync dari LinkedIn"}
+              </Button>
+
+              {syncResult && (
+                <div
+                  className={`flex items-center gap-2 text-sm rounded-md px-3 py-2 ${
+                    syncResult.success
+                      ? "bg-green-500/10 text-green-600"
+                      : "bg-destructive/10 text-destructive"
+                  }`}
+                >
+                  {syncResult.success ? (
+                    <CheckCircle className="h-4 w-4 shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                  )}
+                  {syncResult.message}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Experience List */}
           <div className="space-y-4">
             {experiences.map((exp) => (
@@ -502,7 +617,7 @@ export default function AdminExperiencePage() {
             )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

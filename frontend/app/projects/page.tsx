@@ -1,10 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchProjects } from "@/lib/api";
 import { ProjectCard } from "@/components/project-card";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ArrowLeft } from "lucide-react";
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Projects",
+  description:
+    "Browse my open-source projects and repositories — full-stack web apps, tools, and experiments.",
+  openGraph: {
+    title: "Projects | NAJ",
+    description:
+      "Browse my open-source projects and repositories — full-stack web apps, tools, and experiments.",
+  },
+};
 
 export default async function ProjectsPage() {
   const projects = await fetchProjects();

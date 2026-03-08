@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, Mail, Github, Linkedin, Twitter, MapPin, Calendar, Briefcase, Award, Code } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -5,7 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchProjects } from "@/lib/api";
 
-const API_URL = process.env.NEXT_SERVER_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Learn more about NAJ — a full-stack developer passionate about building modern, performant web applications.",
+  openGraph: {
+    title: "About | NAJ",
+    description:
+      "Learn more about NAJ — a full-stack developer passionate about building modern, performant web applications.",
+  },
+};
+
+const API_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface Experience {
   id: string;
@@ -22,6 +34,13 @@ interface Experience {
   order: number;
 }
 
+interface Skill {
+  id: string;
+  name: string;
+  level: number;
+  category: string;
+}
+
 async function fetchExperiences(): Promise<Experience[]> {
   try {
     const response = await fetch(`${API_URL}/api/experiences`, {
@@ -31,6 +50,20 @@ async function fetchExperiences(): Promise<Experience[]> {
     return response.json();
   } catch (error) {
     console.error('Failed to fetch experiences:', error);
+    return [];
+  }
+}
+
+async function fetchSkills(): Promise<Skill[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/skills`, {
+      next: { revalidate: 60 }
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.skills;
+  } catch (error) {
+    console.error('Failed to fetch skills:', error);
     return [];
   }
 }
@@ -45,24 +78,14 @@ function formatExperienceDate(dateString: string): string {
 export const revalidate = 60;
 
 export default async function AboutPage() {
-  const projects = await fetchProjects();
-  const experiences = await fetchExperiences();
+  const [projects, experiences, skills] = await Promise.all([
+    fetchProjects(),
+    fetchExperiences(),
+    fetchSkills(),
+  ]);
   const totalStars = projects.reduce((sum, p) => sum + p.stars, 0);
   const allTechStack = projects.flatMap(p => p.techStack);
   const uniqueTechs = [...new Set(allTechStack)];
-
-  const skills = [
-    { name: "TypeScript", level: 90, category: "Language" },
-    { name: "JavaScript", level: 95, category: "Language" },
-    { name: "Python", level: 85, category: "Language" },
-    { name: "React", level: 90, category: "Frontend" },
-    { name: "Next.js", level: 88, category: "Frontend" },
-    { name: "Tailwind CSS", level: 92, category: "Frontend" },
-    { name: "Node.js", level: 87, category: "Backend" },
-    { name: "PostgreSQL", level: 85, category: "Database" },
-    { name: "Docker", level: 80, category: "DevOps" },
-    { name: "Git", level: 93, category: "Tools" },
-  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
@@ -181,9 +204,9 @@ export default async function AboutPage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full justify-start gap-3 h-12">
-                  <Link href="mailto:naradaagastyajiwanta@gmail.com">
+                  <Link href="mailto:contact@naj.dev">
                     <Mail className="h-5 w-5" />
-                    <span>naradaagastyajiwanta@gmail.com</span>
+                    <span>contact@naj.dev</span>
                   </Link>
                 </Button>
               </div>
@@ -309,7 +332,7 @@ export default async function AboutPage() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="gap-2">
-                <Link href="mailto:naradaagastyajiwanta@gmail.com">
+                <Link href="/contact">
                   <Mail className="h-4 w-4" />
                   Get in Touch
                 </Link>

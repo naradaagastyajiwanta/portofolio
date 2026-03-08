@@ -31,6 +31,9 @@ services:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       PORT: 3001
       FRONTEND_URL: http://localhost:3000
+      LINKEDIN_SLUG: ${LINKEDIN_SLUG:-narada-607387219}
+      LINKEDIN_LI_AT: ${LINKEDIN_LI_AT}
+      LINKEDIN_JSESSIONID: ${LINKEDIN_JSESSIONID}
     ports:
       - "3001:3001"
     depends_on:

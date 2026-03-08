@@ -1,0 +1,123 @@
+'use client'
+import React from 'react'
+import Link from 'next/link'
+import { Mail, Github, Linkedin, Twitter, MapPin, Briefcase, Calendar } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
+
+export function AboutPreview() {
+    return (
+        <section className="relative z-10 py-24 md:py-32">
+            <div className="mx-auto max-w-6xl px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    {/* Left: Avatar + Key Info */}
+                    <div className="space-y-6">
+                        {/* Avatar */}
+                        <div className="relative mx-auto lg:mx-0 w-fit">
+                            <div className="bg-gradient-to-br from-primary/20 via-background to-secondary/20 rounded-2xl p-1">
+                                <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-8">
+                                    <div className="bg-gradient-to-br from-primary to-secondary rounded-2xl w-48 h-48 flex items-center justify-center">
+                                        <span className="text-white text-8xl font-bold">N</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Info Cards */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="border rounded-xl p-4 space-y-2">
+                                <MapPin className="h-5 w-5 text-primary" />
+                                <p className="text-sm font-medium">Based in</p>
+                                <p className="text-lg font-bold">Indonesia</p>
+                            </div>
+                            <div className="border rounded-xl p-4 space-y-2">
+                                <Briefcase className="h-5 w-5 text-primary" />
+                                <p className="text-sm font-medium">Status</p>
+                                <p className="text-lg font-bold">Available</p>
+                            </div>
+                            <div className="border rounded-xl p-4 space-y-2">
+                                <Calendar className="h-5 w-5 text-primary" />
+                                <p className="text-sm font-medium">Experience</p>
+                                <p className="text-lg font-bold">3+ Years</p>
+                            </div>
+                            <div className="border rounded-xl p-4 space-y-2">
+                                <Badge className="h-5 w-5 text-primary" />
+                                <p className="text-sm font-medium">Focus</p>
+                                <p className="text-lg font-bold">Full-Stack</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Bio + CTA */}
+                    <div className="space-y-6 text-center lg:text-left">
+                        <div className="space-y-2">
+                            <Badge variant="outline" className="mb-2">About Me</Badge>
+                            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+                                Hi, I'm a Full-Stack Developer
+                            </h2>
+                        </div>
+
+                        <div className="space-y-4 text-muted-foreground leading-relaxed">
+                            <p>
+                                I'm a passionate full-stack developer with expertise in building modern web applications.
+                                My journey in software development started in 2020, and since then, I've been continuously
+                                learning and adapting to new technologies.
+                            </p>
+                            <p>
+                                I specialize in Next.js, TypeScript, and modern frontend/backend technologies.
+                                I believe in writing clean, maintainable code and creating user experiences that are both
+                                beautiful and functional.
+                            </p>
+                        </div>
+
+                        {/* Social Links */}
+                        <div className="pt-4">
+                            <p className="text-sm font-medium mb-3">Let's Connect</p>
+                            <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                                <Button asChild variant="outline" size="sm" className="gap-2">
+                                    <Link href="https://github.com/naradaagastyajiwanta" target="_blank">
+                                        <Github className="h-4 w-4" />
+                                        <span>GitHub</span>
+                                    </Link>
+                                </Button>
+                                <Button asChild variant="outline" size="sm" className="gap-2">
+                                    <Link href="https://linkedin.com" target="_blank">
+                                        <Linkedin className="h-4 w-4" />
+                                        <span>LinkedIn</span>
+                                    </Link>
+                                </Button>
+                                <Button asChild variant="outline" size="sm" className="gap-2">
+                                    <Link href="https://twitter.com" target="_blank">
+                                        <Twitter className="h-4 w-4" />
+                                        <span>Twitter</span>
+                                    </Link>
+                                </Button>
+                                <Button asChild variant="outline" size="sm" className="gap-2">
+                                    <Link href="mailto:contact@naj.dev">
+                                        <Mail className="h-4 w-4" />
+                                        <span>Email</span>
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* CTA */}
+                        <div className="flex flex-wrap gap-3 pt-4 justify-center lg:justify-start">
+                            <Button asChild size="lg" className="gap-2">
+                                <Link href="/about">
+                                    <span>More About Me</span>
+                                </Link>
+                            </Button>
+                            <Button asChild size="lg" variant="outline" className="gap-2">
+                                <Link href="/projects">
+                                    <span>View My Work</span>
+                                </Link>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    )
+}
