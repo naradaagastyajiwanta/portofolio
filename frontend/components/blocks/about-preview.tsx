@@ -1,12 +1,32 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Mail, Github, Linkedin, Twitter, MapPin, Briefcase, Calendar, Award } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import type { SiteSettings } from '@/lib/api'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export function AboutPreview() {
+    const [settings, setSettings] = useState<SiteSettings | null>(null);
+    useEffect(() => {
+        fetch(`${API_URL}/api/settings/public`)
+            .then((r) => r.json())
+            .then((data) => setSettings(data))
+            .catch(() => {});
+    }, []);
+
+    const location = settings?.profile?.location || 'Indonesia';
+    const availability = settings?.profile?.availability || 'Available';
+    const yearsExp = settings?.profile?.years_experience || '3';
+    const bio1 = settings?.profile?.bio || "I'm a passionate full-stack developer with expertise in building modern web applications. My journey in software development started in 2020, and since then, I've been continuously learning and adapting to new technologies.";
+    const githubUrl = settings?.social?.github_url || '';
+    const linkedinUrl = settings?.social?.linkedin_url || '';
+    const twitterUrl = settings?.social?.twitter_url || '';
+    const email = settings?.social?.email || '';
+
     return (
         <section className="relative z-10 py-32 md:py-40">
             <div className="mx-auto max-w-6xl px-6">
@@ -29,17 +49,17 @@ export function AboutPreview() {
                             <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
                                 <MapPin className="h-5 w-5 text-primary" />
                                 <p className="text-sm font-medium">Based in</p>
-                                <p className="text-lg font-bold">Indonesia</p>
+                                <p className="text-lg font-bold">{location}</p>
                             </div>
                             <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
                                 <Briefcase className="h-5 w-5 text-primary" />
                                 <p className="text-sm font-medium">Status</p>
-                                <p className="text-lg font-bold">Available</p>
+                                <p className="text-lg font-bold">{availability}</p>
                             </div>
                             <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
                                 <Calendar className="h-5 w-5 text-primary" />
                                 <p className="text-sm font-medium">Experience</p>
-                                <p className="text-lg font-bold">3+ Years</p>
+                                <p className="text-lg font-bold">{yearsExp}+ Years</p>
                             </div>
                             <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
                                 <Award className="h-5 w-5 text-primary" />
@@ -59,11 +79,7 @@ export function AboutPreview() {
                         </div>
 
                         <div className="space-y-4 text-muted-foreground leading-relaxed">
-                            <p>
-                                I'm a passionate full-stack developer with expertise in building modern web applications.
-                                My journey in software development started in 2020, and since then, I've been continuously
-                                learning and adapting to new technologies.
-                            </p>
+                            <p>{bio1}</p>
                             <p>
                                 I specialize in Next.js, TypeScript, and modern frontend/backend technologies.
                                 I believe in writing clean, maintainable code and creating user experiences that are both
@@ -75,30 +91,38 @@ export function AboutPreview() {
                         <div className="pt-4">
                             <p className="text-sm font-medium mb-3">Let's Connect</p>
                             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                                {githubUrl && (
                                 <Button asChild variant="outline" size="sm" className="gap-2">
-                                    <Link href="https://github.com/naradaagastyajiwanta" target="_blank">
+                                    <Link href={githubUrl as any} target="_blank">
                                         <Github className="h-4 w-4" />
                                         <span>GitHub</span>
                                     </Link>
                                 </Button>
+                                )}
+                                {linkedinUrl && (
                                 <Button asChild variant="outline" size="sm" className="gap-2">
-                                    <Link href="https://linkedin.com" target="_blank">
+                                    <Link href={linkedinUrl as any} target="_blank">
                                         <Linkedin className="h-4 w-4" />
                                         <span>LinkedIn</span>
                                     </Link>
                                 </Button>
+                                )}
+                                {twitterUrl && (
                                 <Button asChild variant="outline" size="sm" className="gap-2">
-                                    <Link href="https://twitter.com" target="_blank">
+                                    <Link href={twitterUrl as any} target="_blank">
                                         <Twitter className="h-4 w-4" />
                                         <span>Twitter</span>
                                     </Link>
                                 </Button>
+                                )}
+                                {email && (
                                 <Button asChild variant="outline" size="sm" className="gap-2">
-                                    <Link href="mailto:contact@naj.dev">
+                                    <Link href={`mailto:${email}` as any}>
                                         <Mail className="h-4 w-4" />
                                         <span>Email</span>
                                     </Link>
                                 </Button>
+                                )}
                             </div>
                         </div>
 

@@ -26,9 +26,9 @@ const COOKIE_OPTIONS = {
 // ─── Rate Limiting (in-memory) ───────────────────────────────────────────────
 const loginAttempts = new Map<string, { count: number; firstAttempt: number; lockedUntil?: number }>();
 
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOGIN_WINDOW_MS = 15 * 60 * 1000;  // 15 minutes
-const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes lockout
+const MAX_LOGIN_ATTEMPTS = 10;
+const LOGIN_WINDOW_MS = 5 * 60 * 1000;  // 5 minutes
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes lockout
 
 function checkRateLimit(key: string): { allowed: boolean; retryAfterSeconds?: number } {
   const now = Date.now();

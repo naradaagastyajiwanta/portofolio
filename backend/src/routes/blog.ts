@@ -1,4 +1,4 @@
-import Fastify from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { prisma } from '../lib/db.js';
 import { authGuard } from '../middleware/auth.js';
 
@@ -18,7 +18,7 @@ function estimateReadingTime(content: string): number {
   return Math.max(1, Math.ceil(words / wordsPerMinute));
 }
 
-export default async function blogRoutes(fastify: ReturnType<typeof Fastify>) {
+export default async function blogRoutes(fastify: FastifyInstance) {
   // ═══════════════════════════════════════════════════════════════════════════
   // PUBLIC ROUTES
   // ═══════════════════════════════════════════════════════════════════════════

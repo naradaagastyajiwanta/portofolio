@@ -2,9 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Eye, Calendar } from "lucide-react";
+import { ArrowLeft, Clock, Eye, Calendar, FileText } from "lucide-react";
 import { Metadata } from "next";
 import BlogContent from "./blog-content";
+import { Header } from "@/components/header";
+import { BackgroundEffect } from "@/components/blocks/background-effects";
 
 const API_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -91,96 +93,154 @@ export default async function BlogPostPage({
   };
 
   return (
-    <main className="min-h-screen bg-background">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <div className="min-h-screen relative">
+      <BackgroundEffect type="gradient-blobs" className="fixed inset-0 -z-10" />
+      <main className="min-h-screen bg-background">
+        <Header />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
-      <article className="container mx-auto px-4 py-8 max-w-3xl">
-        {/* Back link */}
-        <Button asChild variant="ghost" size="sm" className="mb-8 -ml-2 gap-1.5 text-muted-foreground">
-          <Link href="/blog">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Blog
-          </Link>
-        </Button>
+      {/* Hero gradient background */}
+      <section className="relative py-24 md:py-32 bg-gradient-to-b from-background via-background to-muted/30 overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-10 right-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-10 left-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl animate-pulse animation-delay-1000" />
 
-        {/* Cover image */}
-        {post.coverImage && (
-          <div className="mb-8 rounded-xl overflow-hidden border">
-            <img
-              src={post.coverImage}
-              alt={post.title}
-              className="w-full h-64 md:h-96 object-cover"
-            />
-          </div>
-        )}
-
-        {/* Header */}
-        <header className="mb-8">
-          {/* Tags */}
-          <div className="flex items-center gap-2 mb-4">
-            {post.tags.map((tag) => (
-              <Link key={tag.id} href={`/blog?tag=${tag.slug}`}>
-                <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors">
-                  {tag.name}
-                </Badge>
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Back link */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <Button asChild variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
+              <Link href="/blog">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Blog
               </Link>
-            ))}
+            </Button>
           </div>
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-            {post.title}
-          </h1>
-
-          <p className="text-lg text-muted-foreground mb-6">{post.excerpt}</p>
-
-          {/* Meta info */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground border-y py-4">
-            <span className="font-medium text-foreground">
-              {post.author.displayName || post.author.username}
-            </span>
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3.5 w-3.5" />
-              {new Date(post.publishedAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {post.readingTime} min read
-            </span>
-            <span className="flex items-center gap-1">
-              <Eye className="h-3.5 w-3.5" />
-              {post.views} views
-            </span>
-          </div>
-        </header>
-
-        {/* Content */}
-        <BlogContent content={post.content} />
-
-        {/* Footer */}
-        <footer className="mt-12 pt-8 border-t">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 flex-wrap">
+          <article className="max-w-4xl mx-auto">
+            {/* Post type badge */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+                <FileText className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Article</span>
+              </div>
               {post.tags.map((tag) => (
                 <Link key={tag.id} href={`/blog?tag=${tag.slug}`}>
-                  <Badge variant="outline" className="hover:bg-primary/10 transition-colors">
+                  <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
                     {tag.name}
                   </Badge>
                 </Link>
               ))}
             </div>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/blog">More Posts</Link>
-            </Button>
+
+            {/* Title */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+              {post.title}
+            </h1>
+
+            {/* Excerpt */}
+            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+              {post.excerpt}
+            </p>
+
+            {/* Decorative line */}
+            <div className="flex items-center gap-2 mb-8">
+              <div className="h-px w-16 bg-gradient-to-r from-primary/50 to-transparent" />
+              <div className="h-2 w-2 rounded-full bg-primary/50" />
+              <div className="h-px w-16 bg-gradient-to-l from-primary/50 to-transparent" />
+            </div>
+
+            {/* Meta info card */}
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 space-y-4 shadow-lg shadow-primary/5 border border-primary/5">
+              <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-primary to-secondary rounded-full w-12 h-12 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">
+                    {(post.author.displayName || post.author.username).charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {post.author.displayName || post.author.username}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Author</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6 text-sm text-muted-foreground pt-4 border-t border-border/50">
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4" />
+                  {post.readingTime} min read
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Eye className="h-4 w-4" />
+                  {post.views} views
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {/* Cover image */}
+      {post.coverImage && (
+        <div className="container mx-auto px-4 pb-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl overflow-hidden p-2 shadow-lg shadow-primary/5 border border-primary/5 hover:shadow-xl transition-shadow duration-300">
+              <img
+                src={post.coverImage}
+                alt={post.title}
+                className="w-full h-auto rounded-xl"
+              />
+            </div>
           </div>
-        </footer>
-      </article>
-    </main>
+        </div>
+      )}
+
+      {/* Content */}
+      <section className="container mx-auto px-4 pb-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg shadow-primary/5 border border-primary/5">
+            <BlogContent content={post.content} />
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border/50 bg-muted/30">
+        <div className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-2 flex-wrap justify-center">
+                <span className="text-sm text-muted-foreground mr-2">Tags:</span>
+                {post.tags.map((tag) => (
+                  <Link key={tag.id} href={`/blog?tag=${tag.slug}`}>
+                    <Badge variant="outline" className="hover:bg-primary/10 transition-colors cursor-pointer">
+                      {tag.name}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+              <Button asChild size="lg" className="gap-2">
+                <Link href="/blog">
+                  <ArrowLeft className="h-4 w-4" />
+                  More Posts
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </footer>
+      </main>
+    </div>
   );
 }

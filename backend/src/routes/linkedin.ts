@@ -1,8 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/db.js';
 import { scrapeLinkedInProfile, positionToExperienceData } from '../services/linkedinScraper.js';
-
-const prisma = new PrismaClient();
 
 const LINKEDIN_SLUG = process.env.LINKEDIN_SLUG ?? 'narada-607387219';
 

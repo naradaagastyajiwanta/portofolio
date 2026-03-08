@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -22,6 +22,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { SiteSettings } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -54,6 +55,19 @@ export default function ContactPage() {
     message: string;
   } | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  useEffect(() => {
+    fetch(`${API_URL}/api/settings/public`)
+      .then((r) => r.json())
+      .then((data) => setSettings(data))
+      .catch(() => {});
+  }, []);
+
+  const contactEmail = settings?.social?.email || '';
+  const contactLocation = settings?.profile?.location || 'Indonesia';
+  const githubUrl = settings?.social?.github_url || '';
+  const linkedinUrl = settings?.social?.linkedin_url || '';
 
   function validate(): FormErrors {
     const errs: FormErrors = {};
@@ -176,6 +190,7 @@ export default function ContactPage() {
                 <h2 className="text-lg font-semibold">Contact Information</h2>
 
                 <div className="space-y-4">
+                  {contactEmail && (
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-lg bg-primary/10">
                       <Mail className="h-4 w-4 text-primary" />
@@ -183,13 +198,14 @@ export default function ContactPage() {
                     <div>
                       <p className="text-sm font-medium">Email</p>
                       <a
-                        href="mailto:naradaagastyajiwanta@gmail.com"
+                        href={`mailto:${contactEmail}`}
                         className="text-sm text-muted-foreground hover:text-primary transition-colors"
                       >
-                        naradaagastyajiwanta@gmail.com
+                        {contactEmail}
                       </a>
                     </div>
                   </div>
+                  )}
 
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-lg bg-primary/10">
@@ -197,7 +213,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium">Location</p>
-                      <p className="text-sm text-muted-foreground">Indonesia</p>
+                      <p className="text-sm text-muted-foreground">{contactLocation}</p>
                     </div>
                   </div>
 
@@ -219,18 +235,22 @@ export default function ContactPage() {
               <div className="rounded-2xl border bg-card p-6 space-y-4">
                 <h2 className="text-lg font-semibold">Find Me On</h2>
                 <div className="space-y-3">
+                  {githubUrl && (
                   <Button asChild variant="outline" className="w-full justify-start gap-3 h-11">
-                    <a href="https://github.com/naradaagastyajiwanta" target="_blank" rel="noopener noreferrer">
+                    <a href={githubUrl} target="_blank" rel="noopener noreferrer">
                       <Github className="h-4 w-4" />
                       GitHub
                     </a>
                   </Button>
+                  )}
+                  {linkedinUrl && (
                   <Button asChild variant="outline" className="w-full justify-start gap-3 h-11">
-                    <a href="https://linkedin.com/in/narada-607387219" target="_blank" rel="noopener noreferrer">
+                    <a href={linkedinUrl} target="_blank" rel="noopener noreferrer">
                       <Linkedin className="h-4 w-4" />
                       LinkedIn
                     </a>
                   </Button>
+                  )}
                 </div>
               </div>
             </motion.div>

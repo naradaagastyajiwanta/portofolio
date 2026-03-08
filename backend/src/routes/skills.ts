@@ -1,17 +1,10 @@
-import Fastify from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { prisma } from '../lib/db.js';
 import { authGuard } from '../middleware/auth.js';
 
-export default async function skillsRoutes(fastify: ReturnType<typeof Fastify>) {
+export default async function skillsRoutes(fastify: FastifyInstance) {
   // ─── Public: Get visible skills ───
   fastify.get('/api/skills', async (request, reply) => {
-    console.log('=== SKILLS DEBUG ===');
-    console.log('prisma:', typeof prisma);
-    console.log('prisma constructor:', prisma?.constructor?.name);
-    console.log('prisma.skill:', typeof (prisma as any)?.skill);
-    console.log('prisma keys:', prisma ? Object.keys(prisma).slice(0, 10) : 'N/A');
-    console.log('prisma proto keys:', prisma ? Object.getOwnPropertyNames(Object.getPrototypeOf(prisma)).filter((k: string) => !k.startsWith('_')).join(', ') : 'N/A');
-    console.log('=== END DEBUG ===');
     const skills = await prisma.skill.findMany({
       where: { visible: true },
       orderBy: [{ order: 'asc' }, { name: 'asc' }],

@@ -21,6 +21,9 @@ import {
   Clock,
   Tag,
   Search,
+  BookOpen,
+  TrendingUp,
+  FileEdit,
 } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -51,7 +54,7 @@ interface BlogPost {
 }
 
 const statusConfig: Record<string, { label: string; class: string; icon: typeof FileText }> = {
-  draft: { label: "Draft", class: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20", icon: FileText },
+  draft: { label: "Draft", class: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20", icon: FileEdit },
   published: { label: "Published", class: "bg-green-500/10 text-green-600 border-green-500/20", icon: Eye },
   archived: { label: "Archived", class: "bg-gray-500/10 text-gray-500 border-gray-500/20", icon: Archive },
 };
@@ -220,8 +223,11 @@ export default function AdminBlogPage() {
   // ─── Render ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex items-center justify-center py-32">
+        <div className="text-center space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading posts...</p>
+        </div>
       </div>
     );
   }
@@ -234,7 +240,7 @@ export default function AdminBlogPage() {
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => setView("list")} className="gap-2">
+          <Button variant="ghost" onClick={() => setView("list")} className="gap-2 -ml-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Posts
           </Button>
@@ -284,7 +290,7 @@ export default function AdminBlogPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="prose prose-neutral dark:prose-invert max-w-none min-h-[400px] border rounded-lg p-6 bg-card"
+              className="prose prose-neutral dark:prose-invert max-w-none min-h-[400px] border rounded-xl p-6 bg-card"
             >
               <div className="whitespace-pre-wrap">{form.content || "Nothing to preview..."}</div>
             </motion.div>
@@ -293,13 +299,13 @@ export default function AdminBlogPage() {
               placeholder="Write your blog post in markdown..."
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}
-              className="min-h-[400px] w-full resize-y rounded-lg border bg-background p-4 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="min-h-[400px] w-full resize-y rounded-xl border bg-background p-4 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           )}
         </div>
 
         {/* Metadata panel */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border rounded-lg p-4 bg-card">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-xl border p-5 bg-card">
           <div className="space-y-3">
             <label className="text-sm font-medium text-muted-foreground">Excerpt</label>
             <textarea
@@ -374,34 +380,49 @@ export default function AdminBlogPage() {
   // LIST VIEW
   // ═══════════════════════════════════════════════════════════════════════════
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Blog</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your blog posts and tags
+          </p>
+        </div>
+        <Button onClick={() => openEditor()} className="gap-1.5">
+          <Plus className="h-4 w-4" />
+          New Post
+        </Button>
+      </div>
+
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Posts", value: stats.total, color: "text-foreground" },
-          { label: "Published", value: stats.published, color: "text-green-500" },
-          { label: "Drafts", value: stats.draft, color: "text-yellow-500" },
+          { label: "Total Posts", value: stats.total, icon: BookOpen, color: "text-primary" },
+          { label: "Published", value: stats.published, icon: Eye, color: "text-green-500" },
+          { label: "Drafts", value: stats.draft, icon: FileEdit, color: "text-yellow-500" },
+          { label: "Tags", value: allTags.length, icon: Tag, color: "text-blue-500" },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-lg border bg-card p-4 text-center">
+          <div key={stat.label} className="rounded-xl border bg-card p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <span className="text-xs text-muted-foreground">{stat.label}</span>
+            </div>
             <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-muted-foreground">{stat.label}</p>
           </div>
         ))}
       </div>
 
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {["all", "draft", "published", "archived"].map((s) => (
             <Button
               key={s}
               variant={filter === s ? "default" : "outline"}
               size="sm"
-              onClick={() => {
-                setFilter(s);
-                setPage(1);
-              }}
-              className="capitalize"
+              onClick={() => { setFilter(s); setPage(1); }}
+              className="h-8 text-xs capitalize"
             >
               {s === "all" ? "All" : statusConfig[s]?.label || s}
             </Button>
@@ -414,13 +435,9 @@ export default function AdminBlogPage() {
               placeholder="Search posts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 w-[200px]"
+              className="pl-9 w-[220px]"
             />
           </div>
-          <Button onClick={() => openEditor()} className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            New Post
-          </Button>
         </div>
       </div>
 
@@ -431,10 +448,17 @@ export default function AdminBlogPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-16 text-muted-foreground"
+              className="text-center py-20"
             >
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-30" />
-              <p>No posts yet. Create your first blog post!</p>
+              <div className="inline-flex p-4 rounded-2xl bg-muted/50 mb-4">
+                <FileText className="h-10 w-10 text-muted-foreground/50" />
+              </div>
+              <h3 className="font-semibold mb-1">No posts yet</h3>
+              <p className="text-sm text-muted-foreground mb-4">Create your first blog post to get started.</p>
+              <Button onClick={() => openEditor()} className="gap-1.5">
+                <Plus className="h-4 w-4" />
+                Create First Post
+              </Button>
             </motion.div>
           ) : (
             filteredPosts.map((post) => {
@@ -446,7 +470,7 @@ export default function AdminBlogPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="group rounded-lg border bg-card p-4 hover:border-primary/30 transition-all"
+                  className="group rounded-xl border bg-card p-5 hover:shadow-sm hover:border-primary/20 transition-all"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -550,16 +574,16 @@ export default function AdminBlogPage() {
 
       {/* Tags Management */}
       {allTags.length > 0 && (
-        <div className="border rounded-lg p-4 bg-card space-y-3">
-          <h3 className="text-sm font-medium flex items-center gap-2">
-            <Tag className="h-4 w-4" />
+        <div className="rounded-xl border bg-card p-5 space-y-4">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <Tag className="h-4 w-4 text-primary" />
             Tags ({allTags.length})
           </h3>
           <div className="flex flex-wrap gap-2">
             {allTags.map((tag) => (
               <div
                 key={tag.id}
-                className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm group/tag"
+                className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm group/tag hover:border-primary/30 transition-colors"
               >
                 {tag.color && (
                   <span

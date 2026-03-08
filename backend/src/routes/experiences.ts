@@ -1,8 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/db.js';
 import { parse } from 'csv-parse/sync';
-
-const prisma = new PrismaClient();
 
 // Parse LinkedIn date format e.g. "Jan 2020", "Feb 2022", "2020-01"
 function parseLinkedInDate(dateStr: string): Date | null {

@@ -1,10 +1,13 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Mail, Github, Linkedin, Twitter, Send, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { cn } from '@/lib/utils'
+import type { SiteSettings } from '@/lib/api'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 const transitionVariants = {
     item: {
@@ -27,6 +30,21 @@ const transitionVariants = {
 }
 
 export function ContactCTA() {
+    const [settings, setSettings] = useState<SiteSettings | null>(null);
+    useEffect(() => {
+        fetch(`${API_URL}/api/settings/public`)
+            .then((r) => r.json())
+            .then((data) => setSettings(data))
+            .catch(() => {});
+    }, []);
+
+    const email = settings?.social?.email || '';
+    const githubUrl = settings?.social?.github_url || '';
+    const linkedinUrl = settings?.social?.linkedin_url || '';
+    const twitterUrl = settings?.social?.twitter_url || '';
+    const location = settings?.profile?.location || 'Indonesia';
+    const availability = settings?.profile?.availability || 'Available for freelance work';
+
     return (
         <section className="relative z-10 py-32 md:py-40">
             <div className="mx-auto max-w-4xl px-6">
@@ -56,15 +74,17 @@ export function ContactCTA() {
 
                             {/* Primary CTA Buttons */}
                             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                                {email && (
                                 <Button
                                     asChild
                                     size="lg"
                                     className="gap-2 text-lg px-8 py-6 h-auto rounded-xl">
-                                    <Link href="mailto:contact@naj.dev">
+                                    <Link href={`mailto:${email}` as any}>
                                         <Mail className="h-5 w-5" />
                                         <span>Send Email</span>
                                     </Link>
                                 </Button>
+                                )}
                                 <Button
                                     asChild
                                     size="lg"
@@ -82,47 +102,52 @@ export function ContactCTA() {
                                     Or connect with me on
                                 </p>
                                 <div className="flex flex-wrap gap-3 justify-center">
+                                    {githubUrl && (
                                     <Button
                                         asChild
                                         variant="outline"
                                         size="sm"
                                         className="gap-2 rounded-xl">
-                                        <Link href="https://github.com/naradaagastyajiwanta" target="_blank">
+                                        <Link href={githubUrl as any} target="_blank">
                                             <Github className="h-4 w-4" />
                                             <span>GitHub</span>
                                         </Link>
                                     </Button>
+                                    )}
+                                    {linkedinUrl && (
                                     <Button
                                         asChild
                                         variant="outline"
                                         size="sm"
                                         className="gap-2 rounded-xl">
-                                        <Link href="https://linkedin.com" target="_blank">
+                                        <Link href={linkedinUrl as any} target="_blank">
                                             <Linkedin className="h-4 w-4" />
                                             <span>LinkedIn</span>
                                         </Link>
                                     </Button>
+                                    )}
+                                    {twitterUrl && (
                                     <Button
                                         asChild
                                         variant="outline"
                                         size="sm"
                                         className="gap-2 rounded-xl">
-                                        <Link href="https://twitter.com" target="_blank">
+                                        <Link href={twitterUrl as any} target="_blank">
                                             <Twitter className="h-4 w-4" />
                                             <span>Twitter</span>
                                         </Link>
                                     </Button>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Additional Info */}
                             <div className="mt-12 pt-8 border-t border-border/50">
                                 <p className="text-sm text-muted-foreground">
-                                    📧 contact@naj.dev
+                                    {email && (<>📧 {email}<span className="mx-2">•</span></>)}
+                                    📍 Based in {location}
                                     <span className="mx-2">•</span>
-                                    📍 Based in Indonesia
-                                    <span className="mx-2">•</span>
-                                    💼 Available for freelance work
+                                    💼 {availability}
                                 </p>
                             </div>
                         </div>

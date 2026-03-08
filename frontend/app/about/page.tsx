@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, Github, Linkedin, Twitter, MapPin, Calendar, Briefcase
 import { ModeToggle } from "@/components/mode-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { fetchProjects } from "@/lib/api";
+import { fetchProjects, fetchSettings } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "About",
@@ -78,10 +78,11 @@ function formatExperienceDate(dateString: string): string {
 export const revalidate = 60;
 
 export default async function AboutPage() {
-  const [projects, experiences, skills] = await Promise.all([
+  const [projects, experiences, skills, settings] = await Promise.all([
     fetchProjects(),
     fetchExperiences(),
     fetchSkills(),
+    fetchSettings(),
   ]);
   const totalStars = projects.reduce((sum, p) => sum + p.stars, 0);
   const allTechStack = projects.flatMap(p => p.techStack);
@@ -134,7 +135,7 @@ export default async function AboutPage() {
               <p className="text-sm text-muted-foreground">Technologies</p>
             </div>
             <div className="text-center p-6 rounded-2xl border bg-card hover:shadow-lg transition-shadow">
-              <div className="text-4xl font-bold text-primary mb-2">3+</div>
+              <div className="text-4xl font-bold text-primary mb-2">{settings.profile.years_experience}+</div>
               <p className="text-sm text-muted-foreground">Years Experience</p>
             </div>
           </div>
@@ -161,11 +162,11 @@ export default async function AboutPage() {
               <div className="pt-4 space-y-3">
                 <div className="flex items-center gap-3 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>Based in Indonesia</span>
+                  <span>Based in {settings.profile.location}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
-                  <span>Available for freelance work</span>
+                  <span>{settings.profile.availability}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
@@ -185,30 +186,38 @@ export default async function AboutPage() {
                 Feel free to reach out through any of these platforms!
               </p>
               <div className="space-y-3">
+                {settings.social.github_url && (
                 <Button asChild variant="outline" className="w-full justify-start gap-3 h-12">
-                  <Link href="https://github.com/naradaagastyajiwanta" target="_blank">
+                  <Link href={settings.social.github_url as any} target="_blank">
                     <Github className="h-5 w-5" />
-                    <span>github.com/naradaagastyajiwanta</span>
+                    <span>{settings.social.github_url.replace('https://', '')}</span>
                   </Link>
                 </Button>
+                )}
+                {settings.social.linkedin_url && (
                 <Button asChild variant="outline" className="w-full justify-start gap-3 h-12">
-                  <Link href="https://linkedin.com/in/yourprofile" target="_blank">
+                  <Link href={settings.social.linkedin_url as any} target="_blank">
                     <Linkedin className="h-5 w-5" />
                     <span>Connect on LinkedIn</span>
                   </Link>
                 </Button>
+                )}
+                {settings.social.twitter_url && (
                 <Button asChild variant="outline" className="w-full justify-start gap-3 h-12">
-                  <Link href="https://twitter.com/yourhandle" target="_blank">
+                  <Link href={settings.social.twitter_url as any} target="_blank">
                     <Twitter className="h-5 w-5" />
                     <span>Follow on Twitter</span>
                   </Link>
                 </Button>
+                )}
+                {settings.social.email && (
                 <Button asChild variant="outline" className="w-full justify-start gap-3 h-12">
-                  <Link href="mailto:contact@naj.dev">
+                  <Link href={`mailto:${settings.social.email}` as any}>
                     <Mail className="h-5 w-5" />
-                    <span>contact@naj.dev</span>
+                    <span>{settings.social.email}</span>
                   </Link>
                 </Button>
+                )}
               </div>
             </div>
           </div>

@@ -1,8 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 
-export const prisma = new PrismaClient();
+const globalForPrisma = globalThis as unknown as { __prisma?: PrismaClient };
 
-console.log('DB module loaded. adminUser type:', typeof (prisma as any).adminUser);
+if (!globalForPrisma.__prisma) {
+  globalForPrisma.__prisma = new PrismaClient();
+}
+
+export const prisma: PrismaClient = globalForPrisma.__prisma;
 
 export async function connectDatabase() {
   try {

@@ -11,7 +11,6 @@ import {
   Trash2,
   RefreshCw,
   Search,
-  Filter,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -21,6 +20,8 @@ import {
   MailCheck,
   Loader2,
   Eye,
+  MessageSquare,
+  MailX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof
 };
 
 export default function AdminContactPage() {
-  const { authFetch, user, logout } = useAuth();
+  const { authFetch } = useAuth();
   const router = useRouter();
 
   const [messages, setMessages] = useState<ContactMessage[]>([]);
@@ -74,12 +75,8 @@ export default function AdminContactPage() {
     try {
       const params = new URLSearchParams({ page: String(page), limit: "20" });
       if (filterStatus !== "all") params.set("status", filterStatus);
-
       const res = await authFetch(`${API_URL}/api/admin/contact?${params}`);
-      if (res.status === 401) {
-        router.push("/admin/login");
-        return;
-      }
+      if (res.status === 401) { router.push("/admin/login"); return; }
       const data = await res.json();
       setMessages(data.messages);
       setPagination(data.pagination);
@@ -103,14 +100,10 @@ export default function AdminContactPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      // Update local state
-      setMessages((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, status: newStatus } : m))
-      );
+      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, status: newStatus } : m)));
       if (selectedMessage?.id === id) {
         setSelectedMessage((prev) => prev ? { ...prev, status: newStatus } : null);
       }
-      // Update unread count
       setUnreadCount((prev) => {
         const oldMsg = messages.find((m) => m.id === id);
         if (oldMsg?.status === "unread" && newStatus !== "unread") return prev - 1;
@@ -141,10 +134,7 @@ export default function AdminContactPage() {
 
   function openMessage(msg: ContactMessage) {
     setSelectedMessage(msg);
-    // Auto-mark as read
-    if (msg.status === "unread") {
-      handleStatusChange(msg.id, "read");
-    }
+    if (msg.status === "unread") handleStatusChange(msg.id, "read");
   }
 
   function formatDate(dateString: string) {
@@ -153,7 +143,6 @@ export default function AdminContactPage() {
     const diff = now.getTime() - date.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
-
     if (hours < 1) return "Just now";
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
@@ -171,268 +160,259 @@ export default function AdminContactPage() {
     : messages;
 
   return (
-    <div>
-      <div className="container mx-auto px-4 py-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-lg font-bold flex items-center gap-2">
-              <Inbox className="h-5 w-5" />
-              Messages
-              {unreadCount > 0 && (
-                <Badge variant="default" className="ml-1">
-                  {unreadCount}
-                </Badge>
-              )}
-            </h1>
-          </div>
-          {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
-            <div className="relative flex-1 w-full sm:max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search messages..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              {["all", "unread", "read", "replied", "archived"].map((status) => (
-                <Button
-                  key={status}
-                  variant={filterStatus === status ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => { setFilterStatus(status); }}
-                >
-                  {status === "all" ? "All" : STATUS_CONFIG[status]?.label || status}
-                </Button>
-              ))}
-            </div>
-            <Button variant="outline" size="sm" onClick={() => fetchMessages()} className="gap-1.5">
-              <RefreshCw className="h-3.5 w-3.5" />
-              Refresh
-            </Button>
-          </div>
+    <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            Messages
+            {unreadCount > 0 && (
+              <Badge className="text-xs">{unreadCount} new</Badge>
+            )}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {pagination.total} total messages
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => fetchMessages()} className="gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5" />
+          Refresh
+        </Button>
+      </div>
 
-          {/* Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Message List */}
-            <div className="lg:col-span-2 space-y-2">
-              {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Total", value: pagination.total, icon: MessageSquare, color: "text-primary" },
+          { label: "Unread", value: unreadCount, icon: Mail, color: "text-blue-500" },
+          { label: "Replied", value: messages.filter((m) => m.status === "replied").length, icon: Reply, color: "text-green-500" },
+          { label: "Archived", value: messages.filter((m) => m.status === "archived").length, icon: Archive, color: "text-orange-500" },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-xl border bg-card p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <span className="text-xs text-muted-foreground">{stat.label}</span>
+            </div>
+            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="relative flex-1 w-full sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search messages..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {["all", "unread", "read", "replied", "archived"].map((status) => (
+            <Button
+              key={status}
+              variant={filterStatus === status ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilterStatus(status)}
+              className="h-8 text-xs"
+            >
+              {status === "all" ? "All" : STATUS_CONFIG[status]?.label || status}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content: Split Pane */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[500px]">
+        {/* Message List */}
+        <div className="lg:col-span-2 space-y-1.5">
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center space-y-3">
+                <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
+                <p className="text-sm text-muted-foreground">Loading messages...</p>
+              </div>
+            </div>
+          ) : filteredMessages.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="inline-flex p-4 rounded-2xl bg-muted/50 mb-4">
+                <MailX className="h-10 w-10 text-muted-foreground/50" />
+              </div>
+              <h3 className="font-semibold mb-1">No messages found</h3>
+              <p className="text-sm text-muted-foreground">
+                {filterStatus !== "all" ? "Try a different filter" : "Messages will appear here when visitors contact you"}
+              </p>
+            </div>
+          ) : (
+            <>
+              {filteredMessages.map((msg) => {
+                const isSelected = selectedMessage?.id === msg.id;
+                const isUnread = msg.status === "unread";
+                return (
+                  <motion.button
+                    key={msg.id}
+                    layout
+                    onClick={() => openMessage(msg)}
+                    className={`w-full text-left p-4 rounded-xl border transition-all ${
+                      isSelected
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border/50 bg-card hover:bg-muted/50 hover:border-border"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-1.5 h-2 w-2 rounded-full shrink-0 transition-colors ${isUnread ? "bg-blue-500" : "bg-transparent"}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`text-sm truncate ${isUnread ? "font-semibold" : "font-medium"}`}>
+                            {msg.name}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                            {formatDate(msg.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{msg.email}</p>
+                        {msg.subject && (
+                          <p className={`text-sm truncate mt-1.5 ${isUnread ? "font-medium" : ""}`}>
+                            {msg.subject}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground truncate mt-0.5 leading-relaxed">
+                          {msg.message.substring(0, 100)}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.button>
+                );
+              })}
+
+              {/* Pagination */}
+              {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4">
+                  <span className="text-xs text-muted-foreground">
+                    Page {pagination.page} of {pagination.totalPages}
+                  </span>
+                  <div className="flex gap-1">
+                    <Button variant="outline" size="icon" className="h-8 w-8" disabled={pagination.page <= 1} onClick={() => fetchMessages(pagination.page - 1)}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="icon" className="h-8 w-8" disabled={pagination.page >= pagination.totalPages} onClick={() => fetchMessages(pagination.page + 1)}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              ) : filteredMessages.length === 0 ? (
-                <div className="text-center py-20 text-muted-foreground">
-                  <MailCheck className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p className="font-medium">No messages found</p>
-                  <p className="text-sm">
-                    {filterStatus !== "all" ? "Try a different filter" : "Messages will appear here"}
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Message Detail */}
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            {selectedMessage ? (
+              <motion.div
+                key={selectedMessage.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="rounded-2xl border bg-card overflow-hidden sticky top-24"
+              >
+                {/* Detail Header */}
+                <div className="p-6 border-b space-y-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1.5 min-w-0">
+                      <h2 className="text-xl font-bold leading-tight">
+                        {selectedMessage.subject || "No Subject"}
+                      </h2>
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                            <User className="h-3 w-3 text-primary" />
+                          </div>
+                          <span className="font-medium text-foreground">{selectedMessage.name}</span>
+                        </div>
+                        <span className="text-muted-foreground/60">&lt;{selectedMessage.email}&gt;</span>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={STATUS_CONFIG[selectedMessage.status]?.color || ""}>
+                      {STATUS_CONFIG[selectedMessage.status]?.label || selectedMessage.status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3" />
+                      {new Date(selectedMessage.createdAt).toLocaleString()}
+                    </span>
+                    {selectedMessage.ipAddress && (
+                      <span className="flex items-center gap-1.5">
+                        <Globe className="h-3 w-3" />
+                        {selectedMessage.ipAddress}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Message Body */}
+                <div className="p-6 min-h-[200px]">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {selectedMessage.message}
                   </p>
                 </div>
-              ) : (
-                <>
-                  {filteredMessages.map((msg) => {
-                    const isSelected = selectedMessage?.id === msg.id;
-                    const isUnread = msg.status === "unread";
-                    return (
-                      <motion.button
-                        key={msg.id}
-                        layout
-                        onClick={() => openMessage(msg)}
-                        className={`w-full text-left p-4 rounded-xl border transition-all ${
-                          isSelected
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-transparent bg-card hover:bg-muted/50"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${isUnread ? "bg-blue-500" : "bg-transparent"}`} />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className={`text-sm truncate ${isUnread ? "font-semibold" : "font-medium"}`}>
-                                {msg.name}
-                              </span>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {formatDate(msg.createdAt)}
-                              </span>
-                            </div>
-                            <p className="text-xs text-muted-foreground truncate">{msg.email}</p>
-                            {msg.subject && (
-                              <p className={`text-sm truncate mt-1 ${isUnread ? "font-medium" : ""}`}>
-                                {msg.subject}
-                              </p>
-                            )}
-                            <p className="text-xs text-muted-foreground truncate mt-0.5">
-                              {msg.message.substring(0, 80)}...
-                            </p>
-                          </div>
-                        </div>
-                      </motion.button>
-                    );
-                  })}
 
-                  {/* Pagination */}
-                  {pagination.totalPages > 1 && (
-                    <div className="flex items-center justify-between pt-4">
-                      <span className="text-xs text-muted-foreground">
-                        Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
-                      </span>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          disabled={pagination.page <= 1}
-                          onClick={() => fetchMessages(pagination.page - 1)}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          disabled={pagination.page >= pagination.totalPages}
-                          onClick={() => fetchMessages(pagination.page + 1)}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+                {/* Actions */}
+                <div className="p-4 border-t bg-muted/20 flex flex-wrap gap-2">
+                  <Button size="sm" variant="outline" className="gap-1.5" asChild>
+                    <a href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject || "Your message"}`}>
+                      <Reply className="h-3.5 w-3.5" />
+                      Reply via Email
+                    </a>
+                  </Button>
+                  {selectedMessage.status !== "replied" && (
+                    <Button size="sm" variant="outline" className="gap-1.5" disabled={actionLoading === selectedMessage.id} onClick={() => handleStatusChange(selectedMessage.id, "replied")}>
+                      <MailCheck className="h-3.5 w-3.5" />
+                      Mark Replied
+                    </Button>
                   )}
-                </>
-              )}
-            </div>
-
-            {/* Message Detail */}
-            <div className="lg:col-span-3">
-              <AnimatePresence mode="wait">
-                {selectedMessage ? (
-                  <motion.div
-                    key={selectedMessage.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="rounded-2xl border bg-card overflow-hidden"
+                  {selectedMessage.status !== "unread" && (
+                    <Button size="sm" variant="outline" className="gap-1.5" disabled={actionLoading === selectedMessage.id} onClick={() => handleStatusChange(selectedMessage.id, "unread")}>
+                      <Mail className="h-3.5 w-3.5" />
+                      Mark Unread
+                    </Button>
+                  )}
+                  {selectedMessage.status !== "archived" && (
+                    <Button size="sm" variant="outline" className="gap-1.5" disabled={actionLoading === selectedMessage.id} onClick={() => handleStatusChange(selectedMessage.id, "archived")}>
+                      <Archive className="h-3.5 w-3.5" />
+                      Archive
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="gap-1.5 ml-auto"
+                    disabled={actionLoading === selectedMessage.id}
+                    onClick={() => handleDelete(selectedMessage.id)}
                   >
-                    {/* Detail Header */}
-                    <div className="p-6 border-b space-y-3">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="space-y-1 min-w-0">
-                          <h2 className="text-xl font-bold">
-                            {selectedMessage.subject || "No Subject"}
-                          </h2>
-                          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                            <User className="h-3.5 w-3.5" />
-                            <span className="font-medium text-foreground">{selectedMessage.name}</span>
-                            <span>&lt;{selectedMessage.email}&gt;</span>
-                          </div>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className={STATUS_CONFIG[selectedMessage.status]?.color || ""}
-                        >
-                          {STATUS_CONFIG[selectedMessage.status]?.label || selectedMessage.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {new Date(selectedMessage.createdAt).toLocaleString()}
-                        </span>
-                        {selectedMessage.ipAddress && (
-                          <span className="flex items-center gap-1">
-                            <Globe className="h-3 w-3" />
-                            {selectedMessage.ipAddress}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Message Body */}
-                    <div className="p-6">
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                        {selectedMessage.message}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="p-4 border-t bg-muted/30 flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1.5"
-                        asChild
-                      >
-                        <a href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject || "Your message"}`}>
-                          <Reply className="h-3.5 w-3.5" />
-                          Reply via Email
-                        </a>
-                      </Button>
-                      {selectedMessage.status !== "replied" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1.5"
-                          disabled={actionLoading === selectedMessage.id}
-                          onClick={() => handleStatusChange(selectedMessage.id, "replied")}
-                        >
-                          <MailCheck className="h-3.5 w-3.5" />
-                          Mark Replied
-                        </Button>
-                      )}
-                      {selectedMessage.status !== "unread" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1.5"
-                          disabled={actionLoading === selectedMessage.id}
-                          onClick={() => handleStatusChange(selectedMessage.id, "unread")}
-                        >
-                          <Mail className="h-3.5 w-3.5" />
-                          Mark Unread
-                        </Button>
-                      )}
-                      {selectedMessage.status !== "archived" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1.5"
-                          disabled={actionLoading === selectedMessage.id}
-                          onClick={() => handleStatusChange(selectedMessage.id, "archived")}
-                        >
-                          <Archive className="h-3.5 w-3.5" />
-                          Archive
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="gap-1.5 ml-auto"
-                        disabled={actionLoading === selectedMessage.id}
-                        onClick={() => handleDelete(selectedMessage.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Delete
-                      </Button>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="empty"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="rounded-2xl border bg-card flex flex-col items-center justify-center py-24 text-center text-muted-foreground"
-                  >
-                    <Eye className="h-12 w-12 mb-3 opacity-50" />
-                    <p className="font-medium">Select a message to read</p>
-                    <p className="text-sm">Click on a message from the list</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete
+                  </Button>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="rounded-2xl border bg-card flex flex-col items-center justify-center py-24 text-center"
+              >
+                <div className="inline-flex p-4 rounded-2xl bg-muted/50 mb-4">
+                  <Inbox className="h-10 w-10 text-muted-foreground/50" />
+                </div>
+                <h3 className="font-semibold mb-1">Select a message</h3>
+                <p className="text-sm text-muted-foreground">Click on a message from the list to read it</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
