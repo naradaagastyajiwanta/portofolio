@@ -10,7 +10,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "seed:admin": "tsx prisma/seed-admin.ts",
-    "seed:skills": "tsx prisma/seed-skills.ts"
+    "seed:skills": "tsx prisma/seed-skills.ts",
+    "seed:settings": "tsx prisma/seed-settings.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^9.4.0",

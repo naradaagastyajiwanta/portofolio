@@ -24,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const projects: { id: string; updatedAt: string }[] = data.projects || [];
       projectPages = projects.map((p) => ({
         url: `${siteUrl}/projects/${p.id}`,
-        lastModified: new Date(p.updatedAt),
+        lastModified: p.updatedAt ? new Date(p.updatedAt) : new Date(),
         changeFrequency: "weekly" as const,
         priority: 0.7,
       }));
@@ -38,12 +38,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (res.ok) {
       const data = await res.json();
       const posts: { slug: string; publishedAt: string }[] = data.posts || [];
-      blogPages = posts.map((p) => ({
-        url: `${siteUrl}/blog/${p.slug}`,
-        lastModified: new Date(p.publishedAt),
-        changeFrequency: "monthly" as const,
-        priority: 0.8,
-      }));
+      blogPages = posts
+        .filter((p) => p.publishedAt)
+        .map((p) => ({
+          url: `${siteUrl}/blog/${p.slug}`,
+          lastModified: new Date(p.publishedAt),
+          changeFrequency: "monthly" as const,
+          priority: 0.8,
+        }));
     }
   } catch {}
 

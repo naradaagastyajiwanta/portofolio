@@ -71,7 +71,7 @@ export function BackgroundEffect({
                 // Draw particle
                 ctx.beginPath()
                 ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-                ctx.fillStyle = `rgba(100, 100, 255, ${particle.opacity})`
+                ctx.fillStyle = `rgba(59, 130, 246, ${particle.opacity})`
                 ctx.fill()
             })
 
@@ -86,7 +86,7 @@ export function BackgroundEffect({
                         ctx.beginPath()
                         ctx.moveTo(p1.x, p1.y)
                         ctx.lineTo(p2.x, p2.y)
-                        ctx.strokeStyle = `rgba(100, 100, 255, ${0.15 * (1 - distance / 150)})`
+                        ctx.strokeStyle = `rgba(59, 130, 246, ${0.15 * (1 - distance / 150)})`
                         ctx.stroke()
                     }
                 })
@@ -117,14 +117,14 @@ export function BackgroundEffect({
     if (type === 'gradient-blobs') {
         return (
             <div className={cn('absolute inset-0 overflow-hidden pointer-events-none', className)}>
-                {/* Primary Blob */}
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-blob" />
-                <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-                <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+                {/* Primary Blue Blobs */}
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-blob" />
+                <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl animate-blob animation-delay-2000" />
+                <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
 
-                {/* Secondary Blob */}
-                <div className="absolute top-1/3 left-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-blob animation-delay-1000" />
-                <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl animate-blob animation-delay-3000" />
+                {/* Secondary Blue Blobs */}
+                <div className="absolute top-1/3 left-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-blob animation-delay-1000" />
+                <div className="absolute bottom-1/4 right-1/3 w-64 h-64 bg-blue-700/10 rounded-full blur-3xl animate-blob animation-delay-3000" />
             </div>
         )
     }

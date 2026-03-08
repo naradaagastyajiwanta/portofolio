@@ -22,7 +22,7 @@ const transitionVariants = {
             },
         },
     },
-}
+};
 
 interface StatItem {
     icon: React.ComponentType<{ className?: string }>
@@ -125,7 +125,7 @@ function StatCard({ stat, index }: { stat: StatItem; index: number }) {
             )} />
 
             {/* Card */}
-            <div className="relative bg-card rounded-2xl border p-8 hover:shadow-2xl transition-all duration-500 hover:scale-105">
+            <div className="relative bg-card/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-2xl transition-all duration-500 hover:scale-105">
                 {/* Icon */}
                 <div className="mb-6">
                     <div className={cn(
@@ -191,9 +191,9 @@ export function AnimatedStats() {
     }, [])
 
     return (
-        <section ref={sectionRef} className="relative z-10 py-24 md:py-32 bg-gradient-to-b from-background to-muted/50">
+        <section ref={sectionRef} className="relative z-10 py-32 md:py-40">
             {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0 opacity-20">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
             </div>
 

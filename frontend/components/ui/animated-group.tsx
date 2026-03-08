@@ -20,8 +20,8 @@ type AnimatedGroupProps = {
   children: ReactNode;
   className?: string;
   variants?: {
-    container?: Variants;
-    item?: Variants;
+    container?: Variants | Record<string, any>;
+    item?: Variants | Record<string, any>;
   };
   preset?: PresetType;
 };

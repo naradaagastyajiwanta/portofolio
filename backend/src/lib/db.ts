@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 
 export const prisma = new PrismaClient();
 
+console.log('DB module loaded. adminUser type:', typeof (prisma as any).adminUser);
+
 export async function connectDatabase() {
   try {
     await prisma.$connect();

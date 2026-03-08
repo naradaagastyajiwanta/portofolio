@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { AdminNav } from "@/components/admin-nav";
@@ -18,32 +18,31 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, isLoading, isPublicPage, router]);
 
-  // Login and setup pages — don't guard
   if (isPublicPage) {
     return <>{children}</>;
   }
 
-  // Loading
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground">Verifying session...</p>
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <p className="text-xs text-muted-foreground">Verifying session...</p>
         </div>
       </div>
     );
   }
 
-  // Not authenticated
   if (!isAuthenticated) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/30">
       <AdminNav />
-      <main>{children}</main>
+      <main className="lg:pl-[220px] transition-all duration-200">
+        <div className="p-6 lg:p-8">{children}</div>
+      </main>
     </div>
   );
 }

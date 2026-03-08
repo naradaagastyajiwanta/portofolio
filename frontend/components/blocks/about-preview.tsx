@@ -1,14 +1,14 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import { Mail, Github, Linkedin, Twitter, MapPin, Briefcase, Calendar } from 'lucide-react'
+import { Mail, Github, Linkedin, Twitter, MapPin, Briefcase, Calendar, Award } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
 export function AboutPreview() {
     return (
-        <section className="relative z-10 py-24 md:py-32">
+        <section className="relative z-10 py-32 md:py-40">
             <div className="mx-auto max-w-6xl px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     {/* Left: Avatar + Key Info */}
@@ -26,23 +26,23 @@ export function AboutPreview() {
 
                         {/* Quick Info Cards */}
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="border rounded-xl p-4 space-y-2">
+                            <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
                                 <MapPin className="h-5 w-5 text-primary" />
                                 <p className="text-sm font-medium">Based in</p>
                                 <p className="text-lg font-bold">Indonesia</p>
                             </div>
-                            <div className="border rounded-xl p-4 space-y-2">
+                            <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
                                 <Briefcase className="h-5 w-5 text-primary" />
                                 <p className="text-sm font-medium">Status</p>
                                 <p className="text-lg font-bold">Available</p>
                             </div>
-                            <div className="border rounded-xl p-4 space-y-2">
+                            <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
                                 <Calendar className="h-5 w-5 text-primary" />
                                 <p className="text-sm font-medium">Experience</p>
                                 <p className="text-lg font-bold">3+ Years</p>
                             </div>
-                            <div className="border rounded-xl p-4 space-y-2">
-                                <Badge className="h-5 w-5 text-primary" />
+                            <div className="rounded-xl p-4 space-y-2 bg-muted/30 backdrop-blur-sm">
+                                <Award className="h-5 w-5 text-primary" />
                                 <p className="text-sm font-medium">Focus</p>
                                 <p className="text-lg font-bold">Full-Stack</p>
                             </div>

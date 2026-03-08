@@ -350,15 +350,18 @@ export default function AdminBlogPage() {
                 .filter((t) => !form.tags.includes(t.name))
                 .slice(0, 5)
                 .map((tag) => (
-                  <Badge
+                  <button
                     key={tag.id}
-                    variant="outline"
-                    className="gap-1 cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
                     onClick={() => setForm({ ...form, tags: [...form.tags, tag.name] })}
                   >
-                    <Plus className="h-2.5 w-2.5" />
-                    {tag.name}
-                  </Badge>
+                    <Badge
+                      variant="outline"
+                      className="gap-1 cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+                    >
+                      <Plus className="h-2.5 w-2.5" />
+                      {tag.name}
+                    </Badge>
+                  </button>
                 ))}
             </div>
           </div>

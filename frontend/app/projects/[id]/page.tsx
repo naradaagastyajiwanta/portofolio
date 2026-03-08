@@ -101,7 +101,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 )}
               </div>
               <Button asChild size="lg" className="gap-2">
-                <Link href={project.url} target="_blank" rel="noopener noreferrer">
+                <Link href={project.url as any} target="_blank" rel="noopener noreferrer">
                   View on GitHub
                   <ExternalLink className="h-4 w-4" />
                 </Link>
@@ -216,7 +216,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               Check out the source code, contribute, or star the repository on GitHub
             </p>
             <Button asChild size="lg" className="gap-2">
-              <Link href={project.url} target="_blank" rel="noopener noreferrer">
+              <Link href={project.url as any} target="_blank" rel="noopener noreferrer">
                 <Star className="h-4 w-4" />
                 Star on GitHub
                 <ExternalLink className="h-4 w-4" />

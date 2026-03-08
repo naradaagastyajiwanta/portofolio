@@ -13,6 +13,7 @@ import authRoutes from './routes/auth.js';
 import contactRoutes from './routes/contact.js';
 import skillsRoutes from './routes/skills.js';
 import blogRoutes from './routes/blog.js';
+import settingsRoutes from './routes/settings.js';
 import { registerAdminAuth } from './middleware/auth.js';
 import { cleanExpiredSessions } from './services/auth.js';
 import crypto from 'crypto';
@@ -59,6 +60,7 @@ await app.register(syncRoutes);
 await app.register(experienceRoutes);
 await app.register(linkedinRoutes);
 await app.register(blogRoutes);
+await app.register(settingsRoutes);
 
 app.get('/health', async () => {
   return { status: 'ok', timestamp: new Date().toISOString() };

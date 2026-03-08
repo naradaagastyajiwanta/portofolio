@@ -27,7 +27,7 @@ const transitionVariants = {
 
 interface TechSkill {
     name: string
-    category: string
+    category?: string
     level?: number
 }
 
@@ -100,7 +100,7 @@ const techStacks: {
 
 export function TechStack() {
     return (
-        <section className="relative z-10 py-24 md:py-32 bg-muted/30">
+        <section className="relative z-10 py-32 md:py-40">
             <div className="mx-auto max-w-6xl px-6">
                 {/* Header */}
                 <div className="text-center mb-16">
@@ -134,7 +134,7 @@ export function TechStack() {
                         return (
                             <div
                                 key={stack.category}
-                                className="group relative bg-card rounded-2xl border p-6 hover:shadow-lg transition-all duration-300">
+                                className="group relative bg-card/50 backdrop-blur-sm rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
                                 {/* Gradient Border Effect */}
                                 <div className={cn(
                                     "absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity duration-300",

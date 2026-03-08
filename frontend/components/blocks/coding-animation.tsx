@@ -117,10 +117,7 @@ function TerminalScene({ active }: { active: boolean }) {
           <span className="text-gray-500 dark:text-zinc-400 text-xs bg-gray-200 dark:bg-zinc-800 rounded px-3 py-0.5">narada — portfolio — zsh</span>
         </div>
       </div>
-      <div className="bg-white dark:bg-zinc-950 px-5 pt-4 pb-0">
-        {active && <WebpackProgress active={active} />}
-      </div>
-      <div ref={scrollRef} className="bg-white dark:bg-zinc-950 px-5 pb-4 min-h-[200px] max-h-[200px] overflow-hidden font-mono text-xs space-y-0.5">
+      <div ref={scrollRef} className="bg-white dark:bg-zinc-950 px-5 pt-4 min-h-[200px] max-h-[200px] overflow-hidden font-mono text-xs space-y-0.5">
         {rendered.map((line, i) => (
           <motion.p key={i} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.12 }}
             className={cn('leading-5', lineColor[line.type ?? 'out'])}>
@@ -135,6 +132,9 @@ function TerminalScene({ active }: { active: boolean }) {
           </p>
         )}
         {done && <p className="text-blue-400 leading-5 mt-1">› <span className="animate-pulse">▌</span></p>}
+      </div>
+      <div className="bg-white dark:bg-zinc-950 px-5 pb-4">
+        {active && <WebpackProgress active={active} />}
       </div>
     </div>
   )

@@ -156,3 +156,13 @@ model BlogPostTag {
   @@id([postId, tagId])
   @@map("blog_post_tags")
 }
+
+model SiteSetting {
+  key               String      @id
+  value             String
+  group             String      @default("general") // 'profile' | 'social' | 'seo' | 'integrations'
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  @@index([group])
+  @@map("site_settings")
+}

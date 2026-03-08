@@ -26,7 +26,8 @@ export function registerAdminAuth(app: FastifyInstance) {
       (url.startsWith('/api/projects') && !url.includes('/admin/')) ||
       (url.startsWith('/api/experiences') && !url.includes('/admin/')) ||
       (url === '/api/skills') ||
-      (url.startsWith('/api/blog') && !url.includes('/admin/'))
+      (url.startsWith('/api/blog') && !url.includes('/admin/')) ||
+      (url === '/api/settings/public')
     ) {
       return;
     }
