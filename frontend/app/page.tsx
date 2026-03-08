@@ -6,6 +6,7 @@ import { Services } from "@/components/blocks/services";
 import { AnimatedStats } from "@/components/blocks/animated-stats";
 import { Testimonials } from "@/components/blocks/testimonials";
 import { ContactCTA } from "@/components/blocks/contact-cta";
+import { SiteFooter } from "@/components/blocks/site-footer";
 import { BackgroundEffect } from "@/components/blocks/background-effects";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -40,13 +41,7 @@ export default function HomePage() {
       <AnimatedStats />
       <Testimonials />
       <ContactCTA />
-
-      {/* Footer */}
-      <footer className="py-12 bg-background/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} NAJ. All rights reserved.</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

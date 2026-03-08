@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Mail, Github, Linkedin, Twitter, MapPin, Briefcase, Calendar, Award } from 'lucide-react'
+import { Mail, Github, Linkedin, Twitter, MapPin, Briefcase, Calendar, Award, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -26,6 +26,9 @@ export function AboutPreview() {
     const linkedinUrl = settings?.social?.linkedin_url || '';
     const twitterUrl = settings?.social?.twitter_url || '';
     const email = settings?.social?.email || '';
+    const resumeUrl = settings?.profile?.resume_url || '';
+    const displayName = settings?.profile?.display_name || '';
+    const title = settings?.profile?.title || '';
 
     return (
         <section className="relative z-10 py-32 md:py-40">
@@ -74,7 +77,7 @@ export function AboutPreview() {
                         <div className="space-y-2">
                             <Badge variant="outline" className="mb-2">About Me</Badge>
                             <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-                                Hi, I'm a Full-Stack Developer
+                                {displayName ? `Hi, I'm ${displayName}` : "Hi, I'm a Full-Stack Developer"}
                             </h2>
                         </div>
 
@@ -133,6 +136,14 @@ export function AboutPreview() {
                                     <span>More About Me</span>
                                 </Link>
                             </Button>
+                            {resumeUrl && (
+                                <Button asChild size="lg" variant="outline" className="gap-2">
+                                    <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
+                                        <Download className="h-4 w-4" />
+                                        <span>Download Resume</span>
+                                    </a>
+                                </Button>
+                            )}
                             <Button asChild size="lg" variant="outline" className="gap-2">
                                 <Link href="/projects">
                                     <span>View My Work</span>

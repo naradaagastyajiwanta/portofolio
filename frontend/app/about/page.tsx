@@ -112,11 +112,10 @@ export default async function AboutPage() {
               <span className="text-sm font-medium text-primary">About Me</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-              Hi, I'm a Full-Stack Developer
+              Hi, I'm {settings.profile.display_name || 'a Full-Stack Developer'}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Passionate about building exceptional digital experiences. I specialize in creating modern, 
-              performant web applications with clean code and intuitive user interfaces.
+              {settings.profile.title || 'Passionate about building exceptional digital experiences. I specialize in creating modern, performant web applications with clean code and intuitive user interfaces.'}
             </p>
           </div>
 
