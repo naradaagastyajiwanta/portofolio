@@ -1,8 +1,9 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { Code2, Github, Star, Trophy, Zap, Target } from 'lucide-react'
-import { AnimatedGroup } from '@/components/ui/animated-group'
+import { Code2, Star, Trophy, Zap, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 const transitionVariants = {
     item: {
@@ -68,7 +69,7 @@ const stats: StatItem[] = [
     },
 ]
 
-function useCounter(end: number, duration: number = 2000, start: boolean = false) {
+function useCounter(end: number, duration: number = 2000) {
     const [count, setCount] = useState(0)
     const [isVisible, setIsVisible] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
@@ -91,7 +92,7 @@ function useCounter(end: number, duration: number = 2000, start: boolean = false
     }, [])
 
     useEffect(() => {
-        if (!isVisible || !start) return
+        if (!isVisible) return
 
         let startTime: number | null = null
         const animate = (currentTime: number) => {
@@ -108,7 +109,7 @@ function useCounter(end: number, duration: number = 2000, start: boolean = false
         }
 
         requestAnimationFrame(animate)
-    }, [isVisible, start, end, duration])
+    }, [isVisible, end, duration])
 
     return { count, ref }
 }
@@ -170,24 +171,58 @@ function StatCard({ stat, index }: { stat: StatItem; index: number }) {
 }
 
 export function AnimatedStats() {
-    const [startCounters, setStartCounters] = useState(false)
     const sectionRef = useRef<HTMLDivElement>(null)
+    const [dynamicStats, setDynamicStats] = useState(stats)
 
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setStartCounters(true)
-                }
-            },
-            { threshold: 0.2 }
-        )
+        // Fetch real data from API
+        Promise.all([
+            fetch(`${API_URL}/api/projects`).then(r => r.ok ? r.json() : []),
+            fetch(`${API_URL}/api/skills`).then(r => r.ok ? r.json() : { skills: [] }),
+            fetch(`${API_URL}/api/settings/public`).then(r => r.ok ? r.json() : {}),
+        ])
+            .then(([projectsData, skillsData, settings]) => {
+                const projects = Array.isArray(projectsData) ? projectsData : (projectsData?.projects || [])
+                const totalStars = projects.reduce((sum: number, p: any) => sum + (p.stars || 0), 0)
+                const skillCount = skillsData?.skills?.length || 0
+                const yearsExp = parseInt(settings?.profile?.years_experience) || 3
 
-        if (sectionRef.current) {
-            observer.observe(sectionRef.current)
-        }
-
-        return () => observer.disconnect()
+                setDynamicStats([
+                    {
+                        icon: Code2,
+                        value: projects.length || 15,
+                        label: 'Projects Built',
+                        suffix: '+',
+                        color: 'from-blue-500 to-cyan-500',
+                        gradient: 'shadow-blue-500/20',
+                    },
+                    {
+                        icon: Star,
+                        value: totalStars || 427,
+                        label: 'GitHub Stars',
+                        suffix: '+',
+                        color: 'from-yellow-500 to-orange-500',
+                        gradient: 'shadow-yellow-500/20',
+                    },
+                    {
+                        icon: Trophy,
+                        value: yearsExp,
+                        label: 'Years Experience',
+                        suffix: '+',
+                        color: 'from-purple-500 to-pink-500',
+                        gradient: 'shadow-purple-500/20',
+                    },
+                    {
+                        icon: Zap,
+                        value: skillCount || 20,
+                        label: 'Technologies',
+                        suffix: '+',
+                        color: 'from-green-500 to-emerald-500',
+                        gradient: 'shadow-green-500/20',
+                    },
+                ])
+            })
+            .catch(() => {})
     }, [])
 
     return (
@@ -200,47 +235,31 @@ export function AnimatedStats() {
             <div className="mx-auto max-w-6xl px-6 relative">
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <AnimatedGroup variants={transitionVariants}>
-                        <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-                            <Target className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-medium text-primary">Achievements</span>
-                        </div>
-                        <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                            Numbers That Matter
-                        </h2>
-                        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                            A glimpse into my journey and impact
-                        </p>
-                    </AnimatedGroup>
+                    <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                        <Target className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium text-primary">Achievements</span>
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                        Numbers That Matter
+                    </h2>
+                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                        A glimpse into my journey and impact
+                    </p>
                 </div>
 
                 {/* Stats Grid */}
-                <AnimatedGroup
-                    variants={{
-                        container: {
-                            visible: {
-                                transition: {
-                                    staggerChildren: 0.15,
-                                    delayChildren: 0.3,
-                                },
-                            },
-                        },
-                        ...transitionVariants,
-                    }}
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {stats.map((stat, index) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {dynamicStats.map((stat, index) => (
                         <StatCard key={index} stat={stat} index={index} />
                     ))}
-                </AnimatedGroup>
+                </div>
 
-                {/* Footer Note */}
-                <AnimatedGroup
-                    variants={transitionVariants}
-                    className="text-center mt-12">
+                {/* Footer */}
+                <div className="text-center mt-12">
                     <p className="text-muted-foreground">
                         And counting... 🚀
                     </p>
-                </AnimatedGroup>
+                </div>
             </div>
         </section>
     )

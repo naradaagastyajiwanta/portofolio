@@ -22,6 +22,8 @@ import {
   Calendar,
   Loader2,
   FolderGit2,
+  FileText,
+  BookOpen,
 } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -56,6 +58,8 @@ export default function AdminProjectsPage() {
   const [editDescription, setEditDescription] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [stats, setStats] = useState({ total: 0, visible: 0, featured: 0 });
+  const [fetchingReadme, setFetchingReadme] = useState<string | null>(null);
+  const [fetchingAllReadmes, setFetchingAllReadmes] = useState(false);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -137,6 +141,39 @@ export default function AdminProjectsPage() {
     }
   };
 
+  const fetchReadme = async (id: string) => {
+    setFetchingReadme(id);
+    try {
+      const res = await authFetch(`${API_URL}/api/admin/project-readme/${id}`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProjects((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, ...data.project } : p))
+        );
+      }
+    } catch {
+    } finally {
+      setFetchingReadme(null);
+    }
+  };
+
+  const fetchAllReadmes = async () => {
+    setFetchingAllReadmes(true);
+    try {
+      const res = await authFetch(`${API_URL}/api/admin/project-readmes/fetch-all`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        await fetchProjects();
+      }
+    } catch {
+    } finally {
+      setFetchingAllReadmes(false);
+    }
+  };
+
   const filtered = projects.filter((p) => {
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -182,16 +219,28 @@ export default function AdminProjectsPage() {
             </p>
           </div>
         </div>
-        <Button
-          onClick={handleSync}
-          variant="outline"
-          size="sm"
-          className="gap-2 rounded-lg border-border/60"
-          disabled={syncing}
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
-          {syncing ? "Syncing..." : "Sync GitHub"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={fetchAllReadmes}
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-lg border-border/60"
+            disabled={fetchingAllReadmes}
+          >
+            <BookOpen className={`h-3.5 w-3.5 ${fetchingAllReadmes ? "animate-pulse" : ""}`} />
+            {fetchingAllReadmes ? "Fetching..." : "Fetch All READMEs"}
+          </Button>
+          <Button
+            onClick={handleSync}
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-lg border-border/60"
+            disabled={syncing}
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : "Sync GitHub"}
+          </Button>
+        </div>
       </div>
 
       {/* Filters & Search */}
@@ -345,11 +394,24 @@ export default function AdminProjectsPage() {
                       <ExternalLink className="h-3 w-3" />
                       Repo
                     </a>
+                    <button
+                      onClick={() => fetchReadme(project.id)}
+                      disabled={fetchingReadme === project.id}
+                      className="flex items-center gap-1 hover:text-foreground transition-colors"
+                      title="Fetch description from README"
+                    >
+                      {fetchingReadme === project.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <FileText className="h-3 w-3" />
+                      )}
+                      README
+                    </button>
                   </div>
                 </div>
 
                 {/* Right: Toggle buttons */}
-                <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     className={`p-2 rounded-lg transition-colors ${
                       project.showOnPortfolio

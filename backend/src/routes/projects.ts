@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { prisma } from '../lib/db.js';
 import { authGuard } from '../middleware/auth.js';
+import { GitHubSyncService } from '../services/githubSync.js';
 
 export async function projectRoutes(app: FastifyInstance) {
   // ─── Public: list portfolio projects ──────────────────────────────────────
@@ -117,6 +118,74 @@ export async function projectRoutes(app: FastifyInstance) {
       return reply.status(500).send({ error: 'Failed to update project' });
     }
   });
+
+  // ─── Admin: fetch README for single project ──────────────────────────────
+  app.post<{ Params: { id: string } }>(
+    '/api/admin/project-readme/:id',
+    { preHandler: [authGuard] },
+    async (request, reply) => {
+      const { id } = request.params;
+      const githubToken = process.env.GITHUB_TOKEN;
+
+      if (!githubToken) {
+        return reply.status(500).send({ error: 'GitHub token not configured' });
+      }
+
+      try {
+        const syncService = new GitHubSyncService(githubToken);
+        const result = await syncService.fetchAndUpdateReadme(id);
+
+        if (result.success) {
+          const project = await prisma.project.findUnique({ where: { id } });
+          return reply.send({ success: true, project });
+        } else {
+          return reply.status(404).send({ error: 'README not found for this repository' });
+        }
+      } catch (error) {
+        console.error('Error fetching README:', error);
+        return reply.status(500).send({
+          error: 'Failed to fetch README',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+  );
+
+  // ─── Admin: fetch README for all projects ─────────────────────────────────
+  app.post(
+    '/api/admin/project-readmes/fetch-all',
+    { preHandler: [authGuard] },
+    async (request, reply) => {
+      const githubToken = process.env.GITHUB_TOKEN;
+
+      if (!githubToken) {
+        return reply.status(500).send({ error: 'GitHub token not configured' });
+      }
+
+      try {
+        // Get GitHub username from settings or request
+        const usernameSetting = await prisma.siteSetting.findUnique({
+          where: { key: 'github_username' }
+        });
+
+        const username = usernameSetting?.value || '';
+        const syncService = new GitHubSyncService(githubToken);
+        const result = await syncService.fetchAllReadmes(username);
+
+        return reply.send({
+          success: true,
+          message: `Updated ${result.updated} projects, ${result.failed} failed`,
+          result
+        });
+      } catch (error) {
+        console.error('Error fetching all READMEs:', error);
+        return reply.status(500).send({
+          error: 'Failed to fetch READMEs',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+  );
 
   // ─── Admin: dashboard stats ───────────────────────────────────────────────
   app.get('/api/admin/stats', { preHandler: [authGuard] }, async (request, reply) => {
