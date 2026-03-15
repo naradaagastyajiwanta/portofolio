@@ -252,22 +252,10 @@ const Logo = ({ className }: { className?: string }) => {
                 fontFamily="Arial, sans-serif"
                 fontSize="18"
                 fontWeight="bold"
-                fill="url(#logo-gradient)"
+                fill="currentColor"
                 letterSpacing="2">
                 NAJ
             </text>
-            <defs>
-                <linearGradient
-                    id="logo-gradient"
-                    x1="0"
-                    y1="0"
-                    x2="60"
-                    y2="20"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#9B99FE" />
-                    <stop offset="1" stopColor="#2BC8B7" />
-                </linearGradient>
-            </defs>
         </svg>
     )
 }

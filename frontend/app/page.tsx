@@ -1,6 +1,6 @@
 import { HeroSection } from "@/components/blocks/hero-section-1";
 import { AboutPreview } from "@/components/blocks/about-preview";
-import { TechStack } from "@/components/blocks/tech-stack";
+import { TechShowcase } from "@/components/blocks/tech-showcase";
 import { ProjectsShowcase } from "@/components/blocks/projects-showcase";
 import { Services } from "@/components/blocks/services";
 import { AnimatedStats } from "@/components/blocks/animated-stats";
@@ -35,7 +35,7 @@ export default function HomePage() {
       />
       <HeroSection />
       <AboutPreview />
-      <TechStack />
+      <TechShowcase />
       <ProjectsShowcase />
       <Services />
       <AnimatedStats />

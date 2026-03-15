@@ -181,7 +181,7 @@ export function AnimatedStats() {
             fetch(`${API_URL}/api/skills`).then(r => r.ok ? r.json() : { skills: [] }),
             fetch(`${API_URL}/api/settings/public`).then(r => r.ok ? r.json() : {}),
         ])
-            .then(([projectsData, skillsData, settings]) => {
+            .then(([projectsData, skillsData, settings]: [any, any, any]) => {
                 const projects = Array.isArray(projectsData) ? projectsData : (projectsData?.projects || [])
                 const totalStars = projects.reduce((sum: number, p: any) => sum + (p.stars || 0), 0)
                 const skillCount = skillsData?.skills?.length || 0

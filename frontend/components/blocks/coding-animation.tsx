@@ -108,7 +108,7 @@ function TerminalScene({ active }: { active: boolean }) {
   }
 
   return (
-    <div className="rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-zinc-700/80" style={{ boxShadow: '0 0 40px rgba(59,130,246,0.08)' }}>
+    <div className="rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-zinc-700/80 h-[320px]" style={{ boxShadow: '0 0 40px rgba(59,130,246,0.08)' }}>
       <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700/60">
         <span className="w-3 h-3 rounded-full bg-red-500/90 shadow-sm" />
         <span className="w-3 h-3 rounded-full bg-yellow-400/90 shadow-sm" />
@@ -117,7 +117,7 @@ function TerminalScene({ active }: { active: boolean }) {
           <span className="text-gray-500 dark:text-zinc-400 text-xs bg-gray-200 dark:bg-zinc-800 rounded px-3 py-0.5">narada — portfolio — zsh</span>
         </div>
       </div>
-      <div ref={scrollRef} className="bg-white dark:bg-zinc-950 px-5 pt-4 min-h-[200px] max-h-[200px] overflow-hidden font-mono text-xs space-y-0.5">
+      <div ref={scrollRef} className="bg-white dark:bg-zinc-950 px-5 pt-4 h-[320px] overflow-hidden font-mono text-xs space-y-0.5">
         {rendered.map((line, i) => (
           <motion.p key={i} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.12 }}
             className={cn('leading-5', lineColor[line.type ?? 'out'])}>
@@ -191,7 +191,7 @@ function EditorScene({ active }: { active: boolean }) {
   }, [active])
 
   return (
-    <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700/80 shadow-2xl" style={{ boxShadow: '0 0 40px rgba(139,92,246,0.08)' }}>
+    <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700/80 shadow-2xl h-[320px]" style={{ boxShadow: '0 0 40px rgba(139,92,246,0.08)' }}>
       <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700/60">
         <span className="w-2.5 h-2.5 rounded-full bg-red-500/90" />
         <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/90" />
@@ -207,7 +207,7 @@ function EditorScene({ active }: { active: boolean }) {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-950 flex" style={{ minHeight: 220 }}>
+      <div className="bg-white dark:bg-zinc-950 flex" style={{ height: 320 }}>
         <div className="w-6 bg-gray-100 dark:bg-zinc-900/60 flex flex-col items-center pt-2 gap-3 border-r border-gray-200 dark:border-zinc-800/60">
           {['◫', '⊞', '⎇', '⚙'].map((ic, i) => (
             <span key={i} className="text-[8px] text-gray-400 dark:text-zinc-600">{ic}</span>
@@ -323,7 +323,7 @@ function FloatingCard({ card, active, index }: { card: typeof floatCards[0]; act
 
 function FloatingCardsScene({ active }: { active: boolean }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800/60 bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-transparent dark:to-transparent" style={{ minHeight: 260 }}>
+    <div className="relative overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800/60 bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-transparent dark:to-transparent" style={{ height: 320 }}>
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-purple-400/10 dark:bg-purple-600/10 blur-3xl" />
         <div className="absolute top-1/4 left-1/4 w-24 h-24 rounded-full bg-blue-400/10 dark:bg-blue-600/10 blur-2xl" />
@@ -374,7 +374,7 @@ function GitTimelineScene({ active }: { active: boolean }) {
   }, [active])
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-zinc-700/80 bg-gray-50 dark:bg-zinc-950 overflow-hidden shadow-2xl">
+    <div className="rounded-xl border border-gray-200 dark:border-zinc-700/80 bg-gray-50 dark:bg-zinc-950 overflow-hidden shadow-2xl h-[320px]">
       <div className="flex items-center gap-3 px-4 py-2.5 bg-gray-100/70 dark:bg-zinc-900/70 border-b border-gray-200 dark:border-zinc-800/60">
         <span className="text-gray-700 dark:text-zinc-300 text-xs font-semibold">Git History</span>
         <div className="flex gap-2 ml-auto">
@@ -449,7 +449,7 @@ function SplitViewScene({ active }: { active: boolean }) {
   const lineC: Record<string, string> = { cmd: 'text-pink-400', out: 'text-sky-300' }
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl" style={{ boxShadow: '0 0 40px rgba(20,184,166,0.07)' }}>
+    <div className="rounded-xl border border-gray-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-950 overflow-hidden shadow-2xl h-[320px]" style={{ boxShadow: '0 0 40px rgba(20,184,166,0.07)' }}>
       <div className="flex border-b border-gray-200 dark:border-zinc-800/80 bg-gray-50 dark:bg-zinc-900/60">
         <div className="flex-1 flex items-center gap-2 px-4 py-2 border-r border-gray-200 dark:border-zinc-800/60">
           <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
@@ -460,8 +460,8 @@ function SplitViewScene({ active }: { active: boolean }) {
           <span className="text-[11px] font-mono text-gray-500 dark:text-zinc-400">Live Preview</span>
         </div>
       </div>
-      <div className="flex divide-x divide-gray-200 dark:divide-zinc-800/60">
-        <div className="flex-1 p-4 font-mono text-[11px] min-h-[210px]">
+      <div className="flex divide-x divide-gray-200 dark:divide-zinc-800/60 h-full">
+        <div className="flex-1 p-4 font-mono text-[11px] h-[320px] overflow-hidden">
           {rendered.map((line, i) => (
             <motion.div key={i} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} className={cn('leading-[18px]', lineC[line.type ?? 'out'])}>
               {line.text}
@@ -473,7 +473,7 @@ function SplitViewScene({ active }: { active: boolean }) {
             </div>
           )}
         </div>
-        <div className="flex-1 p-4 flex items-start">
+        <div className="flex-1 p-4 flex items-start overflow-hidden">
           <AnimatePresence>
             {progress > 0.1 && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="w-full">
@@ -538,33 +538,17 @@ const SCENES = [
 
 export function CodingAnimation() {
   const [scene, setScene] = useState(0)
-  const [progress, setProgress] = useState(0)
   const total = SCENES.length
 
   useEffect(() => {
-    setProgress(0)
-    const start = Date.now()
-    const tick = setInterval(() => {
-      const elapsed = Date.now() - start
-      setProgress(Math.min(elapsed / SCENE_DURATION, 1))
-    }, 50)
     const advance = setTimeout(() => setScene(s => (s + 1) % total), SCENE_DURATION)
-    return () => { clearInterval(tick); clearTimeout(advance) }
+    return () => clearTimeout(advance)
   }, [scene])
 
   const { Component } = SCENES[scene]
 
   return (
     <div className="w-full select-none">
-      {/* scene progress bar */}
-      <div className="h-0.5 rounded-full bg-gray-200 dark:bg-zinc-800/60 mb-3 overflow-hidden">
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)', width: `${progress * 100}%` }}
-          transition={{ duration: 0.05 }}
-        />
-      </div>
-
       <AnimatePresence mode="wait">
         <motion.div key={scene}
           initial={{ opacity: 0, scale: 0.97, filter: 'blur(8px)' }}

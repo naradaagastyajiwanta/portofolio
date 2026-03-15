@@ -91,6 +91,7 @@ export interface Project {
   featured: boolean;
   lastCommitAt: string | null;
   provider: string;
+  language?: string;
 }
 
 export async function fetchProjects(): Promise<Project[]> {

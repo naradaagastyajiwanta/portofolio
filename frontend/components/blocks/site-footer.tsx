@@ -75,7 +75,7 @@ export function SiteFooter() {
                     {/* Brand */}
                     <div className="space-y-4">
                         <Link href="/" className="inline-block">
-                            <span className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                            <span className="text-2xl font-bold">
                                 {name}
                             </span>
                         </Link>
