@@ -10,8 +10,8 @@ RUN npm ci
 COPY . .
 
 FROM base AS development
-CMD ["sh", "-c", "npx prisma generate && npm run dev"]
+CMD ["npm", "run", "dev"]
 
 FROM base AS production
 RUN npm run build
-CMD ["sh", "-c", "npx prisma generate && npm start"]
+CMD ["npm", "start"]
