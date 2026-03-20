@@ -36,7 +36,7 @@ export default function HomePage() {
       <HeroSection />
       <AboutPreview />
       <TechShowcase />
-      <ProjectsShowcase />
+      <ProjectsShowcase key="projects-showcase" />
       <Services />
       <AnimatedStats />
       <Testimonials />

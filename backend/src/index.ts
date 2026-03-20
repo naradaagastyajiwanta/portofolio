@@ -20,7 +20,10 @@ import { registerAdminAuth } from './middleware/auth.js';
 import { cleanExpiredSessions } from './services/auth.js';
 import crypto from 'crypto';
 
+// Load dotenv FIRST before any other imports that might use process.env
 config();
+
+console.log('[STARTUP] GITHUB_TOKEN loaded:', !!process.env.GITHUB_TOKEN);
 
 const app = Fastify({
   logger: true

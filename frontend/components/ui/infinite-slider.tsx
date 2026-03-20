@@ -1,8 +1,7 @@
 'use client';
 import { cn } from '@/lib/utils';
 import { useMotionValue, animate, motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import useMeasure from 'react-use-measure';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 type InfiniteSliderProps = {
   children: React.ReactNode;
@@ -13,6 +12,31 @@ type InfiniteSliderProps = {
   reverse?: boolean;
   className?: string;
 };
+
+// Simple useMeasure implementation using ResizeObserver
+function useMeasure() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const element = ref.current;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        });
+      }
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, size] as const;
+}
 
 export function InfiniteSlider({
   children,

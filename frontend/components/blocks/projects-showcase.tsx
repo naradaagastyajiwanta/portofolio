@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { Github, ExternalLink, Star, Code2, Smartphone, Globe, Database, ArrowRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -41,6 +41,34 @@ interface Project {
     featured: boolean
 }
 
+// Detect category based on techStack and description
+function detectCategory(p: any): 'web' | 'mobile' | 'api' | 'tool' {
+    const techStack = (p.techStack || []).map((t: string) => t.toLowerCase())
+    const desc = (p.description || '').toLowerCase()
+    const name = (p.name || '').toLowerCase()
+
+    // Mobile detection
+    if (techStack.some(t => ['react native', 'flutter', 'ionic', 'capacitor', 'swift', 'kotlin', 'dart'].includes(t)) ||
+        desc.includes('mobile') || desc.includes('android') || desc.includes('ios')) {
+        return 'mobile'
+    }
+
+    // API detection
+    if (techStack.some(t => ['api', 'rest', 'graphql', 'fastapi', 'express', 'nest', 'django rest'].includes(t)) ||
+        desc.includes('api') || desc.includes('backend') || desc.includes('rest api')) {
+        return 'api'
+    }
+
+    // Tool detection
+    if (techStack.some(t => ['cli', 'script', 'automation', 'tool', 'generator'].includes(t)) ||
+        name.includes('cli') || name.includes('tool') || name.includes('script')) {
+        return 'tool'
+    }
+
+    // Default to web
+    return 'web'
+}
+
 const categoryIcons = {
     web: Globe,
     mobile: Smartphone,
@@ -55,63 +83,123 @@ const categoryColors = {
     tool: 'from-orange-500 to-red-500',
 }
 
+const filterOptions = [
+    { value: 'all', label: 'All Projects' },
+    { value: 'web', label: 'Web Apps' },
+    { value: 'mobile', label: 'Mobile' },
+    { value: 'api', label: 'APIs' },
+    { value: 'tool', label: 'Tools' },
+] as const
+
 export function ProjectsShowcase() {
-    const [projects, setProjects] = useState<Project[]>([])
-    const [loading, setLoading] = useState(true)
+    const [projects, setProjects] = useState<Project[]>(() => [])
+    const [loading, setLoading] = useState(() => true)
     const [filter, setFilter] = useState<'all' | 'web' | 'mobile' | 'api' | 'tool'>('all')
+    const [error, setError] = useState<string | null>(null)
 
+    const fetchProjects = useCallback(async () => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            const response = await fetch(`${API_URL}/api/projects`)
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const data = await response.json()
+
+            // Handle both array and object response
+            const projectsArray = Array.isArray(data) ? data : (data.projects || [])
+
+            // Map projects
+            const mapped = projectsArray.slice(0, 6).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                description: p.description || 'A modern web application',
+                stars: p.stars || 0,
+                techStack: p.techStack || [],
+                githubUrl: p.url,
+                liveUrl: p.url,
+                category: detectCategory(p),
+                featured: p.featured || false
+            }))
+
+            setProjects(mapped)
+        } catch (err) {
+            console.error('Error fetching projects:', err)
+            setError(err instanceof Error ? err.message : 'Failed to fetch projects')
+        } finally {
+            setLoading(false)
+        }
+    }, [])
+
+    // Initial fetch - only run once on mount
     useEffect(() => {
-        console.log('ProjectsShowcase mounted, API_URL:', API_URL) // Debug log
-        const fetchProjectsData = async () => {
+        let mounted = true
+
+        const load = async () => {
+            if (!mounted) return
+
             try {
-                const url = `${API_URL}/api/projects`
-                console.log('Fetching from:', url) // Debug log
-                const response = await fetch(url)
-                console.log('Response status:', response.status) // Debug log
+                const response = await fetch(`${API_URL}/api/projects`)
+                if (!response.ok) return
 
-                if (response.ok) {
-                    const data = await response.json()
-                    console.log('Raw API response:', data) // Debug log
+                const data = await response.json()
+                const projectsArray = Array.isArray(data) ? data : (data.projects || [])
 
-                    // API returns array directly OR { projects: [...] }
-                    let projectsArray: any[] = []
-                    if (Array.isArray(data)) {
-                        projectsArray = data
-                    } else if (data && Array.isArray(data.projects)) {
-                        projectsArray = data.projects
-                    }
-                    console.log('Fetched projects:', projectsArray) // Debug log
+                const mapped = projectsArray.slice(0, 6).map((p: any) => ({
+                    id: p.id,
+                    name: p.name,
+                    description: p.description || 'A modern web application',
+                    stars: p.stars || 0,
+                    techStack: p.techStack || [],
+                    githubUrl: p.url,
+                    liveUrl: p.url,
+                    category: detectCategory(p),
+                    featured: p.featured || false
+                }))
 
-                    // Map projects ke format yang dibutuhkan
-                    const mappedProjects = projectsArray.slice(0, 6).map((p: any) => ({
-                        id: p.id,
-                        name: p.name,
-                        description: p.description || 'A modern web application built with cutting-edge technologies',
-                        stars: p.stars || 0,
-                        techStack: p.techStack || [],
-                        githubUrl: p.url,
-                        liveUrl: p.url,
-                        category: 'web' as const,
-                        featured: p.featured || false
-                    }))
-                    console.log('Mapped projects:', mappedProjects) // Debug log
-                    setProjects(mappedProjects)
-                } else {
-                    console.error('Failed to fetch projects:', response.status)
+                if (mounted) {
+                    setProjects(mapped)
+                    setLoading(false)
                 }
-            } catch (error) {
-                console.error('Failed to fetch projects:', error)
-            } finally {
-                setLoading(false)
+            } catch (err) {
+                console.error('Error:', err)
+                if (mounted) {
+                    setLoading(false)
+                }
             }
         }
 
-        fetchProjectsData()
+        load()
+
+        return () => {
+            mounted = false
+        }
     }, [])
 
+    // Filter projects
     const filteredProjects = filter === 'all'
         ? projects
         : projects.filter(p => p.category === filter)
+
+    // Debug logging
+    useEffect(() => {
+        console.log('[Projects] State:', {
+            projectsCount: projects.length,
+            loading,
+            filter,
+            filteredCount: filteredProjects.length
+        })
+    }, [projects.length, loading, filter, filteredProjects.length])
+
+    // Handle filter change
+    const handleFilterChange = useCallback((newFilter: typeof filter) => {
+        console.log('[Projects] Filter changed to:', newFilter)
+        setFilter(newFilter)
+    }, [])
 
     if (loading) {
         return (
@@ -119,6 +207,21 @@ export function ProjectsShowcase() {
                 <div className="mx-auto max-w-6xl px-6">
                     <div className="text-center">
                         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                    </div>
+                </div>
+            </section>
+        )
+    }
+
+    if (error) {
+        return (
+            <section className="relative z-10 py-32 md:py-40">
+                <div className="mx-auto max-w-6xl px-6">
+                    <div className="text-center text-red-500">
+                        <p>Error: {error}</p>
+                        <Button onClick={fetchProjects} className="mt-4">
+                            Retry
+                        </Button>
                     </div>
                 </div>
             </section>
@@ -139,23 +242,17 @@ export function ProjectsShowcase() {
                             Projects Showcase
                         </h2>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                            A selection of projects I've built with modern technologies
+                            A selection of projects I&apos;ve built with modern technologies
                         </p>
                     </AnimatedGroup>
                 </div>
 
                 {/* Filter Buttons */}
                 <AnimatedGroup variants={transitionVariants} className="flex flex-wrap justify-center gap-3 mb-12">
-                    {[
-                        { value: 'all', label: 'All Projects' },
-                        { value: 'web', label: 'Web Apps' },
-                        { value: 'mobile', label: 'Mobile' },
-                        { value: 'api', label: 'APIs' },
-                        { value: 'tool', label: 'Tools' },
-                    ].map((f) => (
+                    {filterOptions.map((f) => (
                         <button
                             key={f.value}
-                            onClick={() => setFilter(f.value as typeof filter)}
+                            onClick={() => handleFilterChange(f.value)}
                             className={cn(
                                 'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300',
                                 filter === f.value
@@ -169,19 +266,7 @@ export function ProjectsShowcase() {
                 </AnimatedGroup>
 
                 {/* Projects Grid */}
-                <AnimatedGroup
-                    variants={{
-                        container: {
-                            visible: {
-                                transition: {
-                                    staggerChildren: 0.15,
-                                    delayChildren: 0.3,
-                                },
-                            },
-                        },
-                        ...transitionVariants,
-                    }}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredProjects.map((project) => {
                         const Icon = categoryIcons[project.category]
                         const gradient = categoryColors[project.category]
@@ -243,7 +328,7 @@ export function ProjectsShowcase() {
                                                 size="sm"
                                                 variant="outline"
                                                 className="flex-1 gap-2">
-                                                <Link href={project.githubUrl as any} target="_blank">
+                                                <Link href={project.githubUrl} target="_blank">
                                                     <Github className="h-4 w-4" />
                                                     <span>Code</span>
                                                 </Link>
@@ -254,7 +339,7 @@ export function ProjectsShowcase() {
                                                 asChild
                                                 size="sm"
                                                 className="flex-1 gap-2">
-                                                <Link href={project.liveUrl as any} target="_blank">
+                                                <Link href={project.liveUrl} target="_blank">
                                                     <ExternalLink className="h-4 w-4" />
                                                     <span>Live</span>
                                                 </Link>
@@ -272,7 +357,7 @@ export function ProjectsShowcase() {
                             <p className="text-muted-foreground">No projects found in this category</p>
                         </div>
                     )}
-                </AnimatedGroup>
+                </div>
 
                 {/* CTA */}
                 <AnimatedGroup
