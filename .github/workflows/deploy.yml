@@ -1,0 +1,33 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master # Coba gunakan master jika branch utama Anda adalah master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Sesuaikan path ini dengan lokasi folder project Anda di VPS nanti
+            cd ~/PortofolioWebsite
+            
+            # Tarik kode terbaru dari GitHub
+            git reset --hard HEAD
+            git pull origin main
+            
+            # Rebuild dan jalankan ulang container Docker
+            docker-compose down
+            docker-compose up -d --build
+            
+            # Bersihkan image docker yang tidak terpakai agar disk VPS tidak penuh
+            docker image prune -f

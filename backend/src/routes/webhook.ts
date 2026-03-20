@@ -274,7 +274,7 @@ export default async function webhookRoutes(fastify: FastifyInstance) {
   // ═══════════════════════════════════════════════════════════════════════════
 
   fastify.get('/api/webhook/health', {
-    schema: {
+    config: {
       description: 'Webhook health check endpoint',
       tags: ['Webhook']
     }
