@@ -30,7 +30,7 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     environment:
-      NODE_OPTIONS: "--tls-min-v1.2"
+      NODE_OPTIONS: "--tls-min-v1.2 --openssl-legacy-provider"
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/portfolio_db
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       PORT: 3001
