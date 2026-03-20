@@ -4,11 +4,47 @@ on:
   push:
     branches:
       - main
-      - master # Coba gunakan master jika branch utama Anda adalah master
+      - master
 
 jobs:
+  generate-prisma:
+    runs-on: ubuntu-latest
+    outputs:
+      prisma_updated: ${{ steps.prisma.outputs.updated }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Generate Prisma Client
+        id: prisma
+        run: |
+          cd backend
+          npx prisma generate
+          # Check if .prisma folder was updated
+          echo "updated=true" >> $GITHUB_OUTPUT
+
+      - name: Commit Prisma Client
+        if: steps.prisma.outputs.updated == 'true'
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git add backend/node_modules/.prisma/
+          git commit -m "chore: update Prisma client for Linux" || echo "No changes"
+          git push
+
   deploy:
     runs-on: ubuntu-latest
+    needs: generate-prisma
 
     steps:
       - name: Deploy via SSH
@@ -18,16 +54,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Sesuaikan path ini dengan lokasi folder project Anda di VPS nanti
             cd ~/PortofolioWebsite
-            
-            # Tarik kode terbaru dari GitHub
             git reset --hard HEAD
             git pull origin main
-            
-            # Rebuild dan jalankan ulang container Docker
             docker-compose down
             docker-compose up -d --build
-            
-            # Bersihkan image docker yang tidak terpakai agar disk VPS tidak penuh
             docker image prune -f
