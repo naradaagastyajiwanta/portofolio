@@ -9,6 +9,8 @@ on:
 jobs:
   generate-prisma:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       prisma_updated: ${{ steps.prisma.outputs.updated }}
 
@@ -37,8 +39,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
           git add backend/node_modules/.prisma/
-          git commit -m "chore: update Prisma client for Linux" || echo "No changes to commit"
-          git push || echo "Push failed or no changes"
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: update Prisma client for Linux"
+          git push
 
   deploy:
     runs-on: ubuntu-latest
