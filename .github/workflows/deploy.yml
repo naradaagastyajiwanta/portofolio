@@ -30,17 +30,15 @@ jobs:
         run: |
           cd backend
           npx prisma generate
-          # Check if .prisma folder was updated
           echo "updated=true" >> $GITHUB_OUTPUT
 
       - name: Commit Prisma Client
-        if: steps.prisma.outputs.updated == 'true'
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
           git add backend/node_modules/.prisma/
-          git commit -m "chore: update Prisma client for Linux" || echo "No changes"
-          git push
+          git commit -m "chore: update Prisma client for Linux" || echo "No changes to commit"
+          git push || echo "Push failed or no changes"
 
   deploy:
     runs-on: ubuntu-latest
