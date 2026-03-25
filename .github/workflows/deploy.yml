@@ -38,13 +38,11 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
+          git status
           git add backend/node_modules/.prisma/
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update Prisma client for Linux"
-            git push
-          fi
+          git diff --cached --stat
+          git commit -m "chore: update Prisma client for Linux"
+          git push --force-with-lease
 
   deploy:
     runs-on: ubuntu-latest
