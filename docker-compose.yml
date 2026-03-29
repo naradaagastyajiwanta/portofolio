@@ -48,7 +48,7 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_API_URL: http://103.171.84.14:3001
       INTERNAL_API_URL: http://127.0.0.1:3001
       NEXT_SERVER_API_URL: http://127.0.0.1:3001
     depends_on:
