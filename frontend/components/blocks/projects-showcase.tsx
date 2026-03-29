@@ -48,19 +48,19 @@ function detectCategory(p: any): 'web' | 'mobile' | 'api' | 'tool' {
     const name = (p.name || '').toLowerCase()
 
     // Mobile detection
-    if (techStack.some(t => ['react native', 'flutter', 'ionic', 'capacitor', 'swift', 'kotlin', 'dart'].includes(t)) ||
+    if (techStack.some((t: string) => ['react native', 'flutter', 'ionic', 'capacitor', 'swift', 'kotlin', 'dart'].includes(t)) ||
         desc.includes('mobile') || desc.includes('android') || desc.includes('ios')) {
         return 'mobile'
     }
 
     // API detection
-    if (techStack.some(t => ['api', 'rest', 'graphql', 'fastapi', 'express', 'nest', 'django rest'].includes(t)) ||
+    if (techStack.some((t: string) => ['api', 'rest', 'graphql', 'fastapi', 'express', 'nest', 'django rest'].includes(t)) ||
         desc.includes('api') || desc.includes('backend') || desc.includes('rest api')) {
         return 'api'
     }
 
     // Tool detection
-    if (techStack.some(t => ['cli', 'script', 'automation', 'tool', 'generator'].includes(t)) ||
+    if (techStack.some((t: string) => ['cli', 'script', 'automation', 'tool', 'generator'].includes(t)) ||
         name.includes('cli') || name.includes('tool') || name.includes('script')) {
         return 'tool'
     }
@@ -328,7 +328,7 @@ export function ProjectsShowcase() {
                                                 size="sm"
                                                 variant="outline"
                                                 className="flex-1 gap-2">
-                                                <Link href={project.githubUrl} target="_blank">
+                                                <Link href={project.githubUrl as string} target="_blank">
                                                     <Github className="h-4 w-4" />
                                                     <span>Code</span>
                                                 </Link>
@@ -339,7 +339,7 @@ export function ProjectsShowcase() {
                                                 asChild
                                                 size="sm"
                                                 className="flex-1 gap-2">
-                                                <Link href={project.liveUrl} target="_blank">
+                                                <Link href={project.liveUrl as string} target="_blank">
                                                     <ExternalLink className="h-4 w-4" />
                                                     <span>Live</span>
                                                 </Link>

@@ -14,9 +14,9 @@ interface Settings {
         location?: string
     }
     social: {
-        github?: string
-        linkedin?: string
-        twitter?: string
+        github_url?: string
+        linkedin_url?: string
+        twitter_url?: string
     }
 }
 
@@ -32,6 +32,7 @@ interface Project {
     name: string
     url: string
     description: string | null
+    featured: boolean
 }
 
 const navLinks = [
