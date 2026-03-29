@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchProjects, fetchSettings } from "@/lib/api";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "About",
   description:

@@ -6,6 +6,8 @@ import { ArrowLeft, Clock, Eye, Calendar, FileText } from "lucide-react";
 import { Metadata } from "next";
 import BlogContent from "./blog-content";
 import { Header } from "@/components/header";
+
+export const dynamic = 'force-dynamic';
 import { BackgroundEffect } from "@/components/blocks/background-effects";
 
 const API_URL = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";

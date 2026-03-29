@@ -6,7 +6,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { ArrowLeft, FolderOpen, Star, Code, TrendingUp, Clock, Sparkles } from "lucide-react";
 import { BackgroundEffect } from "@/components/blocks/background-effects";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Projects",
