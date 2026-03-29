@@ -44,6 +44,10 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: production
+      args:
+        NEXT_PUBLIC_API_URL: https://portofolio.najworks.me
+        INTERNAL_API_URL: http://127.0.0.1:3001
+        NEXT_SERVER_API_URL: http://127.0.0.1:3001
     container_name: portfolio-frontend
     restart: unless-stopped
     network_mode: host
