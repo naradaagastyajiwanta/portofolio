@@ -6,7 +6,7 @@ import { authGuard } from '../middleware/auth.js';
 import * as fs from 'fs';
 
 const execAsync = promisify(exec);
-const ENV_PATH = '/root/PortofolioWebsite/.env';
+const ENV_PATH = '/app/.env';
 
 // Keys that should never be exposed via public API
 const SECRET_KEYS = new Set([
