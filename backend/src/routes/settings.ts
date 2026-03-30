@@ -1,6 +1,12 @@
 import { FastifyInstance } from 'fastify';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { prisma } from '../lib/db.js';
 import { authGuard } from '../middleware/auth.js';
+import * as fs from 'fs';
+
+const execAsync = promisify(exec);
+const ENV_PATH = '/root/PortofolioWebsite/.env';
 
 // Keys that should never be exposed via public API
 const SECRET_KEYS = new Set([
@@ -94,4 +100,70 @@ export default async function settingsRoutes(fastify: FastifyInstance) {
 
     return groupSettings(masked);
   });
+
+  // ─── POST /api/admin/settings/github-token — update GITHUB_TOKEN in .env + restart ─
+  fastify.post<{ Body: { token: string } }>(
+    '/api/admin/settings/github-token',
+    { preHandler: [authGuard] },
+    async (request, reply) => {
+      const { token } = request.body ?? {};
+
+      if (!token || typeof token !== 'string') {
+        return reply.code(400).send({ error: 'Token is required' });
+      }
+
+      const trimmed = token.trim();
+      if (!trimmed.startsWith('ghp_') && !trimmed.startsWith('github_pat_')) {
+        return reply.code(400).send({ error: 'Invalid GitHub token format. Must start with ghp_ or github_pat_' });
+      }
+
+      try {
+        // Update .env file
+        const envContent = fs.existsSync(ENV_PATH) ? fs.readFileSync(ENV_PATH, 'utf-8') : '';
+        const lines = envContent.split('\n');
+        let found = false;
+
+        const updatedLines = lines.map((line) => {
+          if (line.startsWith('GITHUB_TOKEN=')) {
+            found = true;
+            return `GITHUB_TOKEN=${trimmed}`;
+          }
+          return line;
+        });
+
+        if (!found) {
+          updatedLines.push(`GITHUB_TOKEN=${trimmed}`);
+        }
+
+        fs.writeFileSync(ENV_PATH, updatedLines.join('\n'), 'utf-8');
+
+        // Also update in database
+        await prisma.siteSetting.upsert({
+          where: { key: 'integrations.github_token' },
+          create: { key: 'integrations.github_token', value: trimmed, group: 'integrations' },
+          update: { value: trimmed },
+        });
+
+        // Graceful restart: close fastify server, then restart container
+        // Give a moment for the response to be sent first
+        setTimeout(async () => {
+          try {
+            await fastify.close();
+            // Use docker restart which is available inside the container
+            exec('sudo docker restart portfolio-backend', (err) => {
+              if (err) console.error('[restart] failed:', err.message);
+              else console.log('[restart] backend restarted');
+            });
+          } catch (e) {
+            console.error('[restart] error:', e);
+          }
+        }, 500);
+
+        return { success: true, message: 'Token updated. Backend is restarting...' };
+      } catch (err) {
+        console.error('[github-token] error:', err);
+        return reply.code(500).send({ error: 'Failed to update token' });
+      }
+    }
+  );
 }

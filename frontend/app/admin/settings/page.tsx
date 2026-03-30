@@ -47,6 +47,7 @@ const tabs: { id: Tab; label: string; icon: typeof User }[] = [
 export default function AdminSettingsPage() {
   const { authFetch, user } = useAuth();
   const [settings, setSettings] = useState<SettingsData>({});
+  const [originalSettings, setOriginalSettings] = useState<SettingsData>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -67,6 +68,7 @@ export default function AdminSettingsPage() {
       if (res.ok) {
         const data = await res.json();
         setSettings(data);
+        setOriginalSettings(data);
       }
     } catch {
     } finally {
@@ -89,7 +91,30 @@ export default function AdminSettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     setError("");
+
+    // Check if GitHub token changed (and is not just the masked value)
+    const oldToken = originalSettings?.integrations?.github_token;
+    const newToken = settings?.integrations?.github_token;
+    const githubTokenChanged = newToken && newToken !== oldToken && newToken !== '••••••••';
+
     try {
+      // If GitHub token changed, call the special endpoint first
+      if (githubTokenChanged) {
+        setError("Updating GitHub token...");
+        const tokenRes = await authFetch(`${API_URL}/api/admin/settings/github-token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: newToken }),
+        });
+
+        if (!tokenRes.ok) {
+          const err = await tokenRes.json();
+          setError(err.error || "Failed to update GitHub token");
+          setSaving(false);
+          return;
+        }
+      }
+
       const res = await authFetch(`${API_URL}/api/admin/settings`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -98,8 +123,10 @@ export default function AdminSettingsPage() {
       if (res.ok) {
         const data = await res.json();
         setSettings(data);
+        setOriginalSettings(data);
         setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
+        setError("");
+        setTimeout(() => setSaved(false), 5000);
       } else {
         const err = await res.json();
         setError(err.error || "Failed to save settings");
