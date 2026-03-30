@@ -1,12 +1,10 @@
 import { FastifyInstance } from 'fastify';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import { prisma } from '../lib/db.js';
 import { authGuard } from '../middleware/auth.js';
 import * as fs from 'fs';
 
-const execAsync = promisify(exec);
-const ENV_PATH = '/app/.env';
+const ENV_PATH = '/app/portfolio/.env';
+const RESTART_FLAG = '/app/portfolio/.restart';
 
 // Keys that should never be exposed via public API
 const SECRET_KEYS = new Set([
@@ -135,7 +133,9 @@ export default async function settingsRoutes(fastify: FastifyInstance) {
           updatedLines.push(`GITHUB_TOKEN=${trimmed}`);
         }
 
-        fs.writeFileSync(ENV_PATH, updatedLines.join('\n'), 'utf-8');
+        fs.writeFileSync(ENV_PATH, updatedLines.join('\n') + '\n', 'utf-8');
+        // Write restart flag so host wrapper can handle it
+        fs.writeFileSync(RESTART_FLAG, '1', 'utf-8');
 
         // Also update in database
         await prisma.siteSetting.upsert({
@@ -143,21 +143,6 @@ export default async function settingsRoutes(fastify: FastifyInstance) {
           create: { key: 'integrations.github_token', value: trimmed, group: 'integrations' },
           update: { value: trimmed },
         });
-
-        // Graceful restart: close fastify server, then restart container
-        // Give a moment for the response to be sent first
-        setTimeout(async () => {
-          try {
-            await fastify.close();
-            // Use docker restart which is available inside the container
-            exec('sudo docker restart portfolio-backend', (err) => {
-              if (err) console.error('[restart] failed:', err.message);
-              else console.log('[restart] backend restarted');
-            });
-          } catch (e) {
-            console.error('[restart] error:', e);
-          }
-        }, 500);
 
         return { success: true, message: 'Token updated. Backend is restarting...' };
       } catch (err) {

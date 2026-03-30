@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
-      - /home/naradaagastya/PortofolioWebsite/.env:/app/.env
+      - /home/naradaagastya/PortofolioWebsite:/app/portfolio
     environment:
       NODE_OPTIONS: "--tls-min-v1.2 --openssl-legacy-provider"
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/portfolio_db
